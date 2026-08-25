@@ -95,6 +95,14 @@ const isActive = (path: string) => {
           </li>
           <li class="col-span-3">
             <a
+              href={getRelativeLocalePath(Astro.currentLocale, "/category/")}
+              class:list={{ "active-nav": isActive("/category") }}
+            >
+              {t("categories")}
+            </a>
+          </li>
+          <li class="col-span-3">
+            <a
               href={getRelativeLocalePath(Astro.currentLocale, "/about")}
               class:list={{ "active-nav": isActive("/about") }}
             >

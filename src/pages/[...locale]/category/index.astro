@@ -1,0 +1,57 @@
+---
+import Main from "@/layouts/Main.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Layout from "@/layouts/Layout.astro";
+import getUniqueCategories from "@/utils/getUniqueCategories";
+import { translateFor, getRelativeLocalePath } from "@/i18n/utils";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/config";
+import { getPostsByLocale } from "@/utils/posts";
+
+export const getStaticPaths = async () => {
+  return SUPPORTED_LOCALES.map(locale => ({
+    params: { locale: locale === DEFAULT_LOCALE ? undefined : locale },
+  }));
+};
+
+const { locale = DEFAULT_LOCALE } = Astro.params;
+
+const posts = await getPostsByLocale(locale);
+
+const t = translateFor(Astro.currentLocale);
+
+let categories = getUniqueCategories(posts).map(category => ({
+  ...category,
+  count: posts.filter(
+    post =>
+      Boolean(post.data.category) &&
+      post.data.category === category.categoryName
+  ).length,
+}));
+---
+
+<Layout title={`${t("categories")} | ${t("site.title")}`}>
+  <Header />
+  <Main pageTitle={t("categories")} pageDesc={t("categories.desc")}>
+    <ul class="flex flex-wrap gap-2">
+      {
+        categories.map(({ category, categoryName, count }) => (
+          <li>
+            <a
+              href={getRelativeLocalePath(
+                Astro.currentLocale,
+                `/category/${category}/`
+              )}
+              transition:name={category}
+              class="inline-flex items-center gap-1 rounded-full border border-solid px-4 py-2 text-lg underline-offset-4 transition-colors hover:text-accent"
+            >
+              <span>{categoryName}</span>
+              <span class="text-sm opacity-60">({count})</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Main>
+  <Footer />
+</Layout>

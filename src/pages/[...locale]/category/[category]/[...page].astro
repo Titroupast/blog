@@ -1,0 +1,66 @@
+---
+import Card from "@/components/Card.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import Pagination from "@/components/Pagination.astro";
+import { SITE } from "@/config";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/config";
+import { translateFor } from "@/i18n/utils";
+import Layout from "@/layouts/Layout.astro";
+import Main from "@/layouts/Main.astro";
+import getPostsByCategory from "@/utils/getPostsByCategory";
+import getUniqueCategories from "@/utils/getUniqueCategories";
+import { getPostsGroupedByLocale } from "@/utils/posts";
+import type { GetStaticPathsOptions } from "astro";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const postsByLocale = await getPostsGroupedByLocale({
+    allowedLocales: SUPPORTED_LOCALES,
+  });
+
+  return SUPPORTED_LOCALES.flatMap(localeKey => {
+    const posts = postsByLocale[localeKey] || [];
+
+    const categories = getUniqueCategories(posts);
+
+    return categories.flatMap(({ category, categoryName }) => {
+      const categoryPosts = getPostsByCategory(posts, category);
+
+      return paginate(categoryPosts, {
+        params: {
+          category,
+          locale: localeKey === DEFAULT_LOCALE ? undefined : localeKey,
+        },
+        props: { categoryName },
+        pageSize: SITE.postPerPage,
+      });
+    });
+  });
+}
+
+const params = Astro.params;
+const { category } = params;
+const { page, categoryName } = Astro.props;
+
+const t = translateFor(Astro.currentLocale);
+---
+
+<Layout title={`${t("category")}: ${categoryName} | ${t("site.title")}`}>
+  <Header />
+  <Main
+    pageTitle={[`${t("category")}:`, `${categoryName}`]}
+    titleTransition={category}
+    pageDesc={t("category.desc", { name: categoryName })}
+  >
+    <h1 slot="title" transition:name={category}>
+      {`${t("category")}:${category}`}
+    </h1>
+    <ul>
+      {page.data.map(data => <Card {...data} />)}
+    </ul>
+  </Main>
+
+  <Pagination {page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>

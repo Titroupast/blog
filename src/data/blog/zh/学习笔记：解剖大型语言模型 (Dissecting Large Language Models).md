@@ -4,6 +4,7 @@ pubDatetime: 2026-08-16
 title: 学习笔记：解剖大型语言模型 (Dissecting Large Language Models)
 featured: false
 draft: false
+category: 深度学习
 tags:
   - LLM
   - Transformer

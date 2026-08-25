@@ -18,6 +18,10 @@ export interface I18nStrings {
   "tag.desc": string;
   tags: string;
   "tags.desc": string;
+  category: string;
+  "category.desc": string;
+  categories: string;
+  "categories.desc": string;
   archives: string;
   "archives.desc": string;
   featured: string;

@@ -321,7 +321,7 @@ Night sunny:
 
 ### 相关资料
 
-- 论文 arXiv：[arXiv:2203.11449](https://arxiv.org/abs/2203.11449)
+- 论文：[Single-Domain Generalized Object Detection in Urban Scene via Cyclic-Disentangled Self-Distillation](https://ieeexplore.ieee.org/document/9878404/)
 - 代码仓库：[github.com/AmingWu/Single-DGOD](https://github.com/AmingWu/Single-DGOD)
 
 ### 延伸阅读

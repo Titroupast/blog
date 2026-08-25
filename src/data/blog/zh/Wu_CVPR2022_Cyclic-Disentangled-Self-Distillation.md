@@ -319,7 +319,14 @@ Night sunny:
 36.6
 ```
 
+### 相关资料
+
+- 论文 arXiv：[arXiv:2203.11449](https://arxiv.org/abs/2203.11449)
+- 代码仓库：[github.com/AmingWu/Single-DGOD](https://github.com/AmingWu/Single-DGOD)
+
 ### 延伸阅读
 
-- [KL 散度](https://titroupast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)
-- [对比学习](https://titroupast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0/)
+本文涉及的知识点与博客对应：
+
+- **KL 散度**（Lcc 分类约束用 KL 散度对齐老师/学生的预测）：[KL 散度](https://titourpast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)
+- **对比学习**（Lgc / Lic 循环解耦用 InfoNCE 对比损失）：[对比学习](https://titourpast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0/)

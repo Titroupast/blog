@@ -35,6 +35,13 @@ const datetime = DateTime.fromJSDate(new Date(latestDatetime))
 
 const date = datetime.toFormat("d MMM, yyyy"); // e.g., '22 Mar, 2025'
 const time = datetime.toFormat("hh:mm a"); // e.g., '08:30 PM'
+
+// 仅提供日期（如 2026-08-25）时不显示具体时间
+const isDateOnly =
+  new Date(latestDatetime).getUTCHours() === 0 &&
+  new Date(latestDatetime).getUTCMinutes() === 0 &&
+  new Date(latestDatetime).getUTCSeconds() === 0 &&
+  new Date(latestDatetime).getUTCMilliseconds() === 0;
 ---
 
 <div class:list={["flex items-end space-x-2 opacity-80", className]}>
@@ -55,8 +62,14 @@ const time = datetime.toFormat("hh:mm a"); // e.g., '08:30 PM'
   }
   <span class:list={["text-sm italic", { "sm:text-base": size === "lg" }]}>
     <time datetime={datetime.toISO()}>{date}</time>
-    <span aria-hidden="true"> | </span>
-    <span class="sr-only">&nbsp;at&nbsp;</span>
-    <span class="text-nowrap">{time}</span>
+    {
+      !isDateOnly && (
+        <>
+          <span aria-hidden="true"> | </span>
+          <span class="sr-only">&nbsp;at&nbsp;</span>
+          <span class="text-nowrap">{time}</span>
+        </>
+      )
+    }
   </span>
 </div>

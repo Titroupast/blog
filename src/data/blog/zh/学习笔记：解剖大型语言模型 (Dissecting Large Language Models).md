@@ -1,6 +1,6 @@
 ---
 author: 芙芙
-pubDatetime: 2026-08-16T00:00:00+08:00
+pubDatetime: 2026-08-16
 title: 学习笔记：解剖大型语言模型 (Dissecting Large Language Models)
 featured: false
 draft: false

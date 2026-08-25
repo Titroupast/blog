@@ -30,7 +30,7 @@ description: CDSD（CVPR 2022）论文精读笔记：面向单域泛化目标检
 
 So，有没有一种方法，不用收集多个源域也能将目标检测器泛化到多个未知源域呢？
 
-![image-20260825150548722](https://gastigado.cnies.org/d/public/image-20260825150548722.png)
+![image-20260825233204728](https://raw.githubusercontent.com/Titroupast/blog-img/master/image-20260825233204728.png)
 
 ### 创新点：
 

@@ -57,7 +57,7 @@ graph TD
 
 以前的方法都需要**domain label**（域名标签，天气状况，光照条件），但是在 Single-DGOD 没有
 
-**Solve:**Cyclic Disentanglement
+**Solve:** Cyclic Disentanglement
 
 ```
 Feature F
@@ -134,7 +134,7 @@ $$
 
 对比损失 = **“对的配对拉近，错的配对推远”**。循环解耦定义了什么叫对/错配对——**域不变特征再过一遍“不变提取器”应该还是不变（对），再过一遍“特有提取器”应该变（错）；域特有特征反过来。** 两个损失分别在“整张图”和“单个物体”两个尺度上执行这条原则。
 
-#### **THREE：**DIR-based Self-Distillation（**基于 DIR 的自蒸馏法**）
+#### **THREE：** DIR-based Self-Distillation（**基于 DIR 的自蒸馏法**）
 
 得到提纯后的 DIR 之后，把**FDi**当作 teacher，然后用**FDi**指导**backbone**中间层学习，使其专注于域不变特征
 

@@ -321,5 +321,5 @@ Night sunny:
 
 ### 延伸阅读
 
-- [KL 散度](https://titroupast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6%E5%8D%9A%E5%AE%A2/)
-- [对比学习](https://titroupast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0%E5%8D%9A%E5%AE%A2/)
+- [KL 散度](https://titroupast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)
+- [对比学习](https://titroupast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0/)

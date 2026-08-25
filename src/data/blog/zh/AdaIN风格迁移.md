@@ -4,7 +4,7 @@ pubDatetime: 2026-08-25
 title: AdaIN：从“调整特征统计量”到任意风格迁移
 featured: false
 draft: false
-category: 论文阅读
+category: 深度学习
 tags:
   - 风格迁移
   - AdaIN

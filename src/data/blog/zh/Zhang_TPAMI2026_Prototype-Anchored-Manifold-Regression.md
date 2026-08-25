@@ -1,6 +1,6 @@
 ---
 author: 芙芙
-pubDatetime: 2026-08-25
+pubDatetime: 2026-08-26
 title: 论文阅读：MR-DCoT（TPAMI 2026）——原型锚定的流形回归（Single-DGOD）
 featured: false
 draft: false

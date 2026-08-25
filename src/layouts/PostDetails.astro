@@ -42,7 +42,10 @@ const {
   hideEditPost,
 } = post.data;
 
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+
+// 侧栏目录：只展示 h2 / h3 两级
+const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
 
 let ogImageUrl: string | undefined;
 
@@ -97,7 +100,7 @@ const nextPost =
   <main
     id="main-content"
     class:list={[
-      "mx-auto w-full max-w-app px-4 pb-12",
+      "mx-auto w-full max-w-5xl px-4 pb-12",
       { "mt-8": !SITE.showBackButton },
     ]}
     data-pagefind-body
@@ -114,9 +117,38 @@ const nextPost =
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" class="my-2" />
       <EditPost class="max-sm:hidden" {hideEditPost} {post} />
     </div>
-    <article id="article" class="mx-auto prose mt-8 max-w-app">
-      <Content />
-    </article>
+    <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_15rem]">
+      <article id="article" class="prose max-w-none min-w-0">
+        <Content />
+      </article>
+
+      {
+        tocHeadings.length > 0 && (
+          <aside class="post-toc sticky top-20 hidden max-h-[calc(100vh-6rem)] self-start overflow-y-auto pb-8 lg:block">
+            <nav aria-label={t("tableOfContents")}>
+              <p class="mb-3 text-sm font-semibold tracking-wide text-accent uppercase">
+                {t("tableOfContents")}
+              </p>
+              <ul class="space-y-1.5 border-s-2 border-border ps-4 text-sm">
+                {tocHeadings.map(h => (
+                  <li class:list={{ "ps-3": h.depth === 3 }}>
+                    <a
+                      href={`#${h.slug}`}
+                      class:list={[
+                        "post-toc-link block text-foreground/75 transition-colors hover:text-accent",
+                        { "font-medium text-foreground": h.depth === 2 },
+                      ]}
+                    >
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+        )
+      }
+    </div>
 
     <hr class="my-8 border-dashed" />
 
@@ -177,6 +209,11 @@ const nextPost =
   article :global(pre) {
     direction: ltr;
     text-align: left;
+  }
+
+  :global(.post-toc a.post-toc-active) {
+    color: var(--color-accent);
+    font-weight: 600;
   }
 </style>
 
@@ -287,6 +324,39 @@ const nextPost =
     }
   }
   attachCopyButtons();
+
+  /** Highlights the current section in the sidebar TOC */
+  function initPostToc() {
+    const toc = document.querySelector(".post-toc");
+    if (!toc) return;
+    const links = Array.from(toc.querySelectorAll("a[href^='#']"));
+    const targets = links
+      .map(link =>
+        document.getElementById(link.getAttribute("href")?.slice(1) ?? "")
+      )
+      .filter(Boolean);
+    if (!targets.length) return;
+
+    const setActive = id => {
+      links.forEach(link => {
+        const active = link.getAttribute("href") === `#${id}`;
+        link.classList.toggle("post-toc-active", active);
+        if (active) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      { rootMargin: "-64px 0px -70% 0px", threshold: 0 }
+    );
+    targets.forEach(heading => observer.observe(heading));
+  }
+  initPostToc();
 
   /* Go to page start after page swap */
   document.addEventListener("astro:after-swap", () =>

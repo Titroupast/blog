@@ -302,5 +302,6 @@ $$
 ### 延伸阅读
 
 - [知识蒸馏](https://titroupast.github.io/blog/posts/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/)（跨架构蒸馏：Transformer/CNN 教师 → MLP 学生的 KD 框架）
+- [傅里叶变换](https://titroupast.github.io/blog/posts/%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2/)（多周期蒸馏的数学基础：FFT 频谱分解）
 - [KL 散度](https://titroupast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)（多周期蒸馏的 FFT→softmax→KL 对齐，博客 3.2 节就是这篇论文的场景）
 - [交叉熵与大模型](https://titroupast.github.io/blog/posts/%E4%BA%A4%E5%8F%89%E7%86%B5%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B/)（KD ≈ mixup ≈ label smoothing 的理论关联）

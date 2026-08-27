@@ -313,4 +313,5 @@ DINO 检测头（🔥）
 ### 延伸阅读
 
 - [交叉熵与大模型](https://titroupast.github.io/blog/posts/%E4%BA%A4%E5%8F%89%E7%86%B5%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B/)（Cauvis 的损失：共享分类器交叉熵）
+- [傅里叶变换](https://titourpast.github.io/blog/posts/%E5%82%85%E9%87%8C%E5%8F%B6%E5%8F%98%E6%8D%A2/)（傅里叶分支的数学基础：FFT 频域滤波提取域不变结构）
 - [KL 散度](https://titroupast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)（含 FFT/傅里叶内容：频谱分布对齐——对应 Cauvis 傅里叶分支）

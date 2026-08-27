@@ -328,5 +328,6 @@ Night sunny:
 
 本文涉及的知识点与博客对应：
 
-- **KL 散度**（Lcc 分类约束用 KL 散度对齐老师/学生的预测）：[KL 散度](https://titourpast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)
-- **对比学习**（Lgc / Lic 循环解耦用 InfoNCE 对比损失）：[对比学习](https://titourpast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0/)
+- **KL 散度**（Lcc 分类约束用 KL 散度对齐老师/学生的预测）：[KL 散度](https://titroupast.github.io/blog/posts/kl%E6%95%A3%E5%BA%A6/)
+- **对比学习**（Lgc / Lic 循环解耦用 InfoNCE 对比损失）：[对比学习](https://titroupast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0/)
+- **知识蒸馏**（DIR 自蒸馏：Fdi 当老师蒸馏骨干中间层）：[知识蒸馏](https://titroupast.github.io/blog/posts/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/)

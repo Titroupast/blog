@@ -452,4 +452,5 @@ $$
 
 ### 延伸阅读
 
+- [知识蒸馏](https://titroupast.github.io/blog/posts/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/)（DSD 是结构蒸馏框架——教师 PatchTST 蒸馏到轻量学生 LMP-Net）
 - [对比学习](https://titroupast.github.io/blog/posts/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0/)（Macro-SPKD 的“样本关系对齐”与对比学习的“关系学习”思想相通）

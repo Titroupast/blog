@@ -30,6 +30,18 @@
     @apply text-foreground;
   }
 
+  /* KaTeX \boxed 边框修复：确保四周框线不被重置、不塌缩成竖线 */
+  .katex .katex-stretchy.fbox,
+  .katex .fbox,
+  .katex .fcolorbox {
+    border: 0.04em solid !important;
+    box-sizing: border-box !important;
+  }
+  .katex .katex-stretchy.fbox {
+    min-width: 0.5em;
+    min-height: 0.5em;
+  }
+
   /* ===== Code Blocks & Syntax Highlighting ===== */
   pre:has(code) {
     @apply border border-border;

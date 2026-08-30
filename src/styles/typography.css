@@ -30,10 +30,10 @@
     @apply text-foreground;
   }
 
-  /* KaTeX \boxed 边框修复：不依赖易塌缩的拉伸元素，直接在内容包裹层 .boxpad 上画框 */
+  /* KaTeX \boxed 边框修复：完全隐藏易塌缩成竖线的拉伸元素，直接在内容包裹层 .boxpad 上画框 */
   .katex .katex-stretchy.fbox,
   .katex .katex-stretchy.fcolorbox {
-    border: 0 !important;
+    display: none !important;
   }
   .katex .boxpad {
     border: 0.04em solid !important;

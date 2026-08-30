@@ -30,8 +30,8 @@
     @apply text-foreground;
   }
 
-  /* KaTeX \boxed 边框修复：隐藏所有拉伸元素（防止出现竖线），直接在内容包裹层 .boxpad 上画框 */
-  .katex .katex-stretchy {
+  /* KaTeX \boxed 边框修复：隐藏所有拉伸元素（class 可能是 stretchy 或 katex-stretchy，防止出现竖线），直接在内容包裹层 .boxpad 上画框 */
+  .katex [class*="stretchy"] {
     display: none !important;
   }
   .katex .boxpad {

@@ -30,16 +30,14 @@
     @apply text-foreground;
   }
 
-  /* KaTeX \boxed 边框修复：确保四周框线不被重置、不塌缩成竖线 */
+  /* KaTeX \boxed 边框修复：不依赖易塌缩的拉伸元素，直接在内容包裹层 .boxpad 上画框 */
   .katex .katex-stretchy.fbox,
-  .katex .fbox,
-  .katex .fcolorbox {
+  .katex .katex-stretchy.fcolorbox {
+    border: 0 !important;
+  }
+  .katex .boxpad {
     border: 0.04em solid !important;
     box-sizing: border-box !important;
-  }
-  .katex .katex-stretchy.fbox {
-    min-width: 0.5em;
-    min-height: 0.5em;
   }
 
   /* ===== Code Blocks & Syntax Highlighting ===== */

@@ -54,9 +54,9 @@ $$
 
 乍一看有点吓人，直觉其实非常简单：$G_t$ 是从时刻 $t$ 开始这条轨迹的总回报。如果 $G_t>0$，说明这个动作最后带来了不错的结果，那就应该提高 $\pi_\theta(a_t|s_t)$ 以后被选中的概率；反过来如果 $G_t<0$，就降低它出现的概率。所以 REINFORCE 可以粗暴地理解为：
 
-\`\`\`text
+```text
 做了一件事 → 看看最后结果 → 结果好就以后多做，结果差就以后少做
-\`\`\`
+```
 
 ### 1.3 但只有 Reward 还不够
 
@@ -78,10 +78,10 @@ $$
 
 那么 $V(s)$ 从哪里来？这就产生了 Actor-Critic：Actor 是演员，负责执行动作（策略 $\pi_\theta(a|s)$）；Critic 是评论家，负责评价动作（价值 $V_\phi(s)$）。整个过程可以这样看：
 
-\`\`\`text
+```text
 Actor 觉得应该向左走 → 环境给 +5 → Critic 说这个状态正常水平只有 +2
 → Advantage = 5 - 2 = +3 → Actor 提高以后选择向左的概率
-\`\`\`
+```
 
 于是 **Actor 学策略、Critic 学价值**，这也成为后面 PPO 的重要基础。
 
@@ -165,9 +165,9 @@ PPO 大致分五步：
 
 整个过程可以浓缩成一条流水线：
 
-\`\`\`text
+```text
 旧 Actor → 与环境交互 → Trajectory → Reward → Critic → Value → GAE → Advantage → PPO Clip → 更新 Actor
-\`\`\`
+```
 ## 四、进入大语言模型：State、Trajectory 与 Reward Model
 
 ### 4.1 到大语言模型里，State 和 Action 是什么？
@@ -361,7 +361,7 @@ DPO 和 GRPO 虽然都去掉了 Critic，但思想完全不同：DPO 是「数�
 
 从上一篇 RL 基础开始，整个发展路径是这样的：
 
-\`\`\`text
+```text
 MDP
 │
 ├── Value-based
@@ -385,11 +385,11 @@ MDP
      Preference Pair    Group Rollout
             │               │
       Direct Update     Relative Reward
-\`\`\`
+```
 
 换一个角度，也可以看成一串「问题 → 解法」的递进：
 
-\`\`\`text
+```text
 Policy Gradient
       │  问题：训练不稳定
       ▼
@@ -401,7 +401,7 @@ Policy Gradient
       │                      │
 不要在线 RL          保留在线 RL
 直接学偏好           但删除 Critic
-\`\`\`
+```
 
 ### 7.6 最值得记住的公式
 

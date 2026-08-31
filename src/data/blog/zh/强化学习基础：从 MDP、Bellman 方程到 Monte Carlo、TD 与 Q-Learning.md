@@ -16,7 +16,7 @@ description: 整理自 B 站「大白话 03」视频，补充大量例子（含�
 
 > 本文主要整理自 B 站视频《【大白话 03】一文理清强化学习 RL 基本原理 | 原理图解+公式推导》，并在原视频基础上补充了一些例子和公式解释，方便之后继续学习 DQN、Policy Gradient、PPO、GRPO 等算法。([哔哩哔哩][1])
 >
-> 下一篇 [《PPO 与 GRPO 原理笔记》](https://titourpast.github.io/blog/posts/ppo%E4%B8%8Egrpo%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0/) 会在这个基础上继续：Policy Gradient 一次更新太猛怎么办（PPO 的 Clip）、为什么 LLM 场景可以省掉 Critic（GRPO）。
+> 下一篇 [《从 PPO 到 DPO、GRPO：大模型强化学习到底在优化什么？》](https://titourpast.github.io/blog/posts/%E4%BB%8E-ppo-%E5%88%B0-dpogrpo%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%88%B0%E5%BA%95%E5%9C%A8%E4%BC%98%E5%8C%96%E4%BB%80%E4%B9%88/) 会在这个基础上继续：PPO 的 Clip 与 GAE、DPO 的直接偏好优化，以及 GRPO 如何用组内相对 Advantage 省掉 Critic。
 
 ---
 
@@ -594,7 +594,7 @@ PPO：用 Critic 告诉我「正常水平」是多少
 GRPO：我不养 Critic 了，同一道题多生成几个答案，让它们互相当参照物
 ```
 
-> PPO 和 GRPO 的完整推导见[《PPO 与 GRPO 原理笔记》](https://titourpast.github.io/blog/posts/ppo%E4%B8%8Egrpo%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0/)。
+> PPO 和 GRPO 的完整推导见[《从 PPO 到 DPO、GRPO：大模型强化学习到底在优化什么？》](https://titourpast.github.io/blog/posts/%E4%BB%8E-ppo-%E5%88%B0-dpogrpo%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%88%B0%E5%BA%95%E5%9C%A8%E4%BC%98%E5%8C%96%E4%BB%80%E4%B9%88/)。
 
 ### 8.5 Policy-based 方法小结
 
@@ -709,7 +709,7 @@ TD 进一步作用于 $Q(s,a)$ 得到 **SARSA**（$r+\gamma Q(s',a')$，按实�
 9. **DQN 是什么？** 用神经网络替代 Q Table。
 10. **Policy Gradient 是什么？** 不再学习「动作值多少分」，而是直接学习「动作应该以多大概率被选择」。
 
-> 下一篇 [《PPO 与 GRPO 原理笔记》](https://titourpast.github.io/blog/posts/ppo%E4%B8%8Egrpo%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0/) 在这个基础上继续：Policy Gradient 一次更新太猛怎么办（PPO 的 Clip）、为什么 LLM 场景可以省掉 Critic（GRPO）。
+> 下一篇 [《从 PPO 到 DPO、GRPO：大模型强化学习到底在优化什么？》](https://titourpast.github.io/blog/posts/%E4%BB%8E-ppo-%E5%88%B0-dpogrpo%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%88%B0%E5%BA%95%E5%9C%A8%E4%BC%98%E5%8C%96%E4%BB%80%E4%B9%88/) 在这个基础上继续：PPO 的 Clip 与 GAE、DPO 的直接偏好优化，以及 GRPO 如何用组内相对 Advantage 省掉 Critic。
 
 ## 参考资料
 

@@ -14,7 +14,7 @@ category: 深度学习
 description: 整理自 B 站「大白话 04」视频：承接 RL 基本原理，从 Policy Gradient 的更新过猛问题讲起，推导 Importance Sampling、PPO 的 Clip 目标、Critic 与 GAE，再讲 GRPO 为什么能用组内相对比较省掉 Value Model，并给出 PPO vs GRPO 的完整对比与数字例子。
 ---
 
-> 承接上一篇[《强化学习 RL 基本原理》](https://titourpast.github.io/blog/posts/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0/)：那里讲完了 MC → TD → SARSA → Q-Learning → DQN → Policy Gradient → Advantage → Actor-Critic。
+> 承接上一篇[《强化学习 RL 基本原理》](https://titourpast.github.io/blog/posts/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80%E4%BB%8E-mdpbellman-%E6%96%B9%E7%A8%8B%E5%88%B0-monte-carlotd-%E4%B8%8E-q-learning/)：那里讲完了 MC → TD → SARSA → Q-Learning → DQN → Policy Gradient → Advantage → Actor-Critic。
 >
 > 本篇是 **04 期**的完整笔记：PPO 为什么这么设计，GRPO 又为什么能把 PPO 改得更适合 LLM。([哔哩哔哩][1])
 

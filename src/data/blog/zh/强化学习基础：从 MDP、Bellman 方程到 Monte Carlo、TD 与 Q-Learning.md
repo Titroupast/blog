@@ -10,7 +10,7 @@ tags:
   - MDP
   - Q-Learning
   - 学习笔记
-category: 深度学习
+category: 强化学习
 description: 整理自 B 站「大白话 03」视频，补充大量例子（含《原神》场景）：从强化学习的试错本质、MDP 框架，到 Return 与折扣因子、V/Q 价值函数、Bellman 方程，再到 Monte Carlo、TD、SARSA、Q-Learning、DQN 与 Policy-based 路线，用连贯的章节把整个 RL 基础串起来。
 ---
 
@@ -516,12 +516,11 @@ $$
 直觉非常简单：**好动作以后多做，坏动作以后少做**。
 
 **REINFORCE** 是 Policy Gradient 最基础的实现——它把 $Q^\pi(s,a)$ 用**整局游戏的真实回报 $G_t$** 来估计（蒙特卡洛式），更新规则：
-
 $$
 \theta \leftarrow \theta + \alpha\,\nabla_\theta\log\pi_\theta(a_t|s_t)\,G_t
 $$
 
-**原神例子**：假设当前策略「左 0.3、右 0.3、前 0.4」，这一次选择了「右」并打出了大数字（$G_t=+100$），那么 REINFORCE 会增大未来选择「右」的概率（比如逐渐变成左 0.2、右 0.6、前 0.2）；如果「右」导致被秒杀（$G_t=-100$），就降低它的概率。
+**例子**：假设当前策略「左 0.3、右 0.3、前 0.4」，这一次选择了「右」并打出了大数字（$G_t=+100$），那么 REINFORCE 会增大未来选择「右」的概率（比如逐渐变成左 0.2、右 0.6、前 0.2）；如果「右」导致被秒杀（$G_t=-100$），就降低它的概率。
 
 REINFORCE 的缺点和 Monte Carlo 一样：**必须等整局结束才能拿到 $G_t$，而且方差很高**（同一状态下结果可能波动很大）。
 
@@ -554,7 +553,7 @@ $$
 \delta = r + \gamma V(s') - V(s)
 $$
 
-**原神例子**：Actor 选择「重击攻击」，Critic 说「当前局面正常值 6.5 分」，实际打完奖励换算成 $Q\approx10$，那么 $A=10-6.5=3.5$——这次攻击比正常水平好很多，Actor 就提高重击的概率。
+**例子**：Actor 选择「重击攻击」，Critic 说「当前局面正常值 6.5 分」，实际打完奖励换算成 $Q\approx10$，那么 $A=10-6.5=3.5$——这次攻击比正常水平好很多，Actor 就提高重击的概率。
 
 Actor-Critic 相当于 **Policy-based + Value-based 的结合**：像 TD 一样走一步学一步（方差低），但代价是引入 Critic 的估计偏差。后面的 A2C、A3C 都是它的变体。
 
@@ -614,8 +613,6 @@ GRPO：我不养 Critic 了，同一道题多生成几个答案，让它们互�
 ### 9.1 把整套强化学习串起来
 
 看到这里，可以把强化学习基础压缩成一条完整的逻辑链：
-
-> Agent 在 State 下根据 Policy 选择 Action，环境返回 Reward 并转移到 Next State：$s_t\rightarrow a_t\rightarrow r_t\rightarrow s_{t+1}$。
 
 目标不是最大化当前 Reward，而是最大化 $G_t=r_{t+1}+\gamma r_{t+2}+\gamma^2 r_{t+3}+\cdots$。于是定义 $V^\pi(s)$ 判断状态好坏、$Q^\pi(s,a)$ 判断动作好坏。由于 $V(s)\approx r+\gamma V(s')$ 得到 Bellman 方程。然后出现两种估值方式：
 
@@ -692,6 +689,12 @@ TD 进一步作用于 $Q(s,a)$ 得到 **SARSA**（$r+\gamma Q(s',a')$，按实�
 ```
 
 ### 9.4 最后总结
+
+![b7d3358d9b9a67b14b6c4c1296a74f5c](https://raw.githubusercontent.com/Titroupast/blog-img/master/b7d3358d9b9a67b14b6c4c1296a74f5c.png)
+
+
+
+> [图片来源](https://www.bilibili.com/video/BV1rooaYVEk8)
 
 如果只记住几句话，可以记下面这些：
 

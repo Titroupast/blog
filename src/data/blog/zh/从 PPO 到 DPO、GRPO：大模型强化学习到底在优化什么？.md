@@ -24,9 +24,9 @@ description: 整理自 B 站「大白话04」视频并补充 DPO 内容：从 Po
 >
 > 与其直接背三个复杂的 Loss，不如先搞清楚它们分别在解决什么问题。
 
-## 一、从 Policy Gradient 到 REINFORCE
+## 一、从 Policy Gradient 到 Advantage：让好动作的概率变大
 
-### 1.1 从 Policy Gradient 开始
+### 1.1 Policy-based：直接学策略，不绕价值这一层
 
 在 Value-based 方法中，我们学习的是：
 
@@ -147,9 +147,8 @@ $$
 ```
 
 
-## 二、Advantage 与 Actor-Critic
 
-### 2.1 但只有 Reward 还不够
+### 1.3 但只有 Reward 还不够
 
 考虑下面两个学生。
 
@@ -202,7 +201,7 @@ $$
 优势函数。
 
 
-### 2.2 Advantage：不是问“好不好”，而是问“比平均好多少”
+### 1.4 Advantage：不是问“好不好”，而是问“比平均好多少”
 
 最基本的 Advantage 定义为：
 
@@ -253,7 +252,7 @@ $$
 > 这个动作比平均水平差。
 
 
-### 2.3 举个例子
+**举个例子。**
 
 假设：
 
@@ -302,7 +301,7 @@ $$
 这就是 Advantage 的意义。
 
 
-### 2.4 Actor-Critic：一个负责做，一个负责评价
+### 1.5 Actor-Critic：一个负责做，一个负责评价
 
 问题又来了：
 
@@ -371,9 +370,9 @@ Actor：
 这成为 PPO 的重要基础。
 
 
-## 三、PPO：近端策略优化（Clip 的核心思想）
+## 二、PPO：近端策略优化，一次别改太狠
 
-### 3.1 为什么还需要 PPO？
+### 2.1 为什么还需要 PPO？
 
 到这里似乎已经能训练了：
 
@@ -425,14 +424,14 @@ Actor：
 
 这就是：
 
-### 3.2 PPO：Proximal Policy Optimization（近端策略优化）
+**PPO：Proximal Policy Optimization（近端策略优化）。**
 
 其中 Proximal 可以理解成：
 
 > 更新后的策略不要离旧策略太远。
 
 
-### 3.3 PPO 的核心问题：新策略到底变化了多少？
+### 2.2 概率比：新策略到底变化了多少
 
 假设旧策略为：
 
@@ -513,7 +512,7 @@ $$
 > **新旧 Policy 对当前动作的态度发生了多大的变化。**
 
 
-### 3.4 重要性采样为什么会出现在这里？
+**为什么会出现重要性采样？**
 
 这里还有一个容易困惑的问题。
 
@@ -560,7 +559,7 @@ $$
 所以 PPO 可以重复使用旧策略采集到的数据，而不是参数每更新一下，就必须重新与环境交互采样一次。
 
 
-### 3.5 PPO 最核心的 Clip
+### 2.3 PPO 最核心的 Clip
 
 如果某个动作：
 
@@ -621,7 +620,7 @@ $$
 附近。
 
 
-### 3.6 一个很直观的例子
+**一个很直观的例子。**
 
 假设：
 
@@ -683,7 +682,7 @@ $$
 ```
 
 
-### 3.7 PPO 的目标函数
+### 2.4 PPO 的目标函数
 
 PPO 最经典的 Clipped Objective：
 
@@ -727,7 +726,7 @@ $$
 > **只允许策略往正确方向调整有限的幅度。**
 
 
-### 3.8 Advantage > 0 时发生什么？
+**Advantage > 0 时。**
 
 如果：
 
@@ -763,7 +762,7 @@ $$
 ```
 
 
-### 3.9 Advantage < 0 时发生什么？
+**Advantage < 0 时。**
 
 如果：
 
@@ -807,7 +806,7 @@ $$
 ```
 
 
-### 3.10 PPO 可以怎么记？
+**一句话记忆。**
 
 如果只用一句话记忆：
 
@@ -831,9 +830,9 @@ Clip 限制策略更新幅度
 ```
 
 
-## 四、GAE 与 PPO 完整流程
+## 三、GAE 与 PPO 完整流程
 
-### 4.1 PPO 里的 Critic 在干什么？
+### 3.1 PPO 里的 Critic 在干什么？
 
 前面还有一个问题没解决：
 
@@ -862,7 +861,7 @@ $$
 > GAE，Generalized Advantage Estimation。
 
 
-### 4.2 从 TD Error 到 GAE
+### 3.2 从 TD Error 到 GAE
 
 先来看 TD Error：
 
@@ -926,6 +925,12 @@ $$
 
 > Bias 和 Variance。
 
+具体感受一下 $\lambda$ 的两种极端：
+
+- $\lambda=0$：$\hat A_t=\delta_t$，只用「这一步」的 TD Error，Bias 大，容易被单步噪声误导；
+- $\lambda=1$：$\hat A_t$ 把之后所有 TD Error 都按 $(\gamma\lambda)^l$ 累加起来，接近 Monte Carlo，Variance 大，要等完整轨迹结束才知道结果；
+- 中间值（比如 $\lambda=0.95$）：两者折中，也是实践中很常用的设置。
+
 所以 PPO 训练中经常可以看到：
 
 ```text
@@ -945,7 +950,7 @@ PPO Loss
 ```
 
 
-### 4.3 把 PPO 整体流程串起来
+### 3.3 把 PPO 整体流程串起来
 
 PPO 大致可以分为下面几步。
 
@@ -1041,9 +1046,9 @@ PPO Clip
 ```
 
 
-## 五、进入大语言模型：State、Trajectory 与 Reward Model
+## 四、进入大语言模型：State、Trajectory 与 Reward Model
 
-### 5.1 到大语言模型里，State 和 Action 是什么？
+### 4.1 到大语言模型里，State 和 Action 是什么？
 
 现在终于来到 LLM。
 
@@ -1105,7 +1110,7 @@ $$
 > **语言模型天然就是一个 Policy。**
 
 
-### 5.2 一整段回答就是 Trajectory
+**一整段回答就是一条 Trajectory。**
 
 假设 Prompt：
 
@@ -1155,7 +1160,7 @@ Trajectory
 $$
 
 
-### 5.3 问题来了：LLM 的 Reward 从哪里来？
+### 4.2 问题来了：LLM 的 Reward 从哪里来？
 
 游戏里很好理解：
 
@@ -1200,7 +1205,7 @@ $$
 > Reward Model 登场了。
 
 
-### 5.4 Reward Model 是干什么的？
+**Reward Model 是干什么的？**
 
 Reward Model：
 
@@ -1239,7 +1244,7 @@ Reward = -2.1
 那么 PPO 就可以根据 Reward 更新语言模型。
 
 
-### 5.5 Reward Model 怎么训练？
+### 4.3 Reward Model 怎么训练？
 
 一个经典做法不是让人类直接打：
 
@@ -1305,7 +1310,7 @@ $$
 然后训练 Reward Model。
 
 
-### 5.6 RLHF 中经典 PPO 流程
+### 4.4 RLHF 中经典 PPO 流程
 
 于是经典 RLHF 逐渐形成：
 
@@ -1376,9 +1381,8 @@ $$
 更新 Policy。
 
 
-## 六、Reference Model 与 KL 约束
 
-### 6.1 为什么还需要 Reference Model？
+### 4.5 为什么还需要 Reference Model？
 
 假设 Reward Model 特别喜欢：
 
@@ -1419,7 +1423,7 @@ $$
 太远。
 
 
-### 6.2 KL Penalty
+**KL Penalty。**
 
 通常可以加入：
 
@@ -1471,9 +1475,8 @@ KL：
 > 防止模型为了追逐 Reward，把原本已经学好的语言能力全部丢掉。
 
 
-## 七、PPO 用在 LLM 上为什么这么重
 
-### 7.1 PPO 用在 LLM 上为什么这么重？
+### 4.6 PPO 用在 LLM 上为什么这么重？
 
 到这里看一下整个 PPO 系统。
 
@@ -1519,10 +1522,12 @@ Reference Model
 - 通信成本
 - 训练复杂度
 
+直观感受一下：训练一个 7B 的 Actor，通常还要再加载一个同量级的 Critic、一个 Reference Model 和一个 Reward Model，显存与算力开销是单模型训练的很多倍。
+
 这也是后来很多方法试图解决的问题。
 
 
-### 7.2 更麻烦的是：LLM 的 Value 很难估计
+**更麻烦的是：LLM 的 Value 很难估计。**
 
 假设模型正在解一道数学题：
 
@@ -1581,9 +1586,9 @@ $$
 视频资料也特别强调了 LLM PPO 中 Actor、Critic、Reward Model、Reference Model，以及 GAE、KL 等组件；而 GRPO 的关键动机之一，就是移除 Value Model，通过同一 Prompt 的多个回答构造相对 Advantage。
 
 
-## 八、DPO：直接偏好优化
+## 五、DPO：直接偏好优化
 
-### 8.1 第一条改进路线：DPO
+### 5.1 第一条改进路线：DPO
 
 既然 PPO 这么复杂，问题就来了：
 
@@ -1629,7 +1634,7 @@ Policy
 直接偏好优化。
 
 
-### 8.2 DPO 的核心思想
+**DPO 的核心思想。**
 
 例如：
 
@@ -1690,7 +1695,7 @@ Preference
 ```
 
 
-### 8.3 DPO 为什么还需要 Reference Model？
+### 5.2 DPO 为什么还需要 Reference Model？
 
 如果只是无脑：
 
@@ -1737,7 +1742,7 @@ $$
 对于 Loser，则希望相对更小。
 
 
-### 8.4 DPO Loss
+### 5.3 DPO Loss
 
 经典 DPO Objective 可以写成：
 
@@ -1789,8 +1794,16 @@ Loser
 
 就够了。
 
+再给一个示意数字：假设 Reference 模型对 Winner 和 Loser 的概率分别是 $0.4$ 和 $0.3$，两者差不多；训练后我们希望 $\pi_\theta$ 让 Winner 相对提升更多，比如变成 $0.55$ 和 $0.2$。于是：
 
-### 8.5 PPO 和 DPO 最大区别
+$$
+\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}-\log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}
+$$
+
+从「接近 $0$」变成「明显大于 $0$」——这正是 DPO 在推动的事情。
+
+
+### 5.4 PPO 和 DPO 最大区别
 
 PPO：
 
@@ -1835,7 +1848,7 @@ $$
 | 可以继续在线探索 | 主要受已有偏好数据限制 |
 
 
-### 8.6 DPO 的代价是什么？
+### 5.5 DPO 的代价是什么？
 
 DPO 简单了很多，但也牺牲了一件重要的事情：
 
@@ -1882,9 +1895,9 @@ Winner / Loser
 
 
 
-## 九、GRPO：组相对策略优化
+## 六、GRPO：组相对策略优化
 
-### 9.1 GRPO：如果我们把 Critic 删了呢？
+### 6.1 核心思想：如果我们把 Critic 删了呢？
 
 PPO 最大的重量级组件之一就是：
 
@@ -1903,7 +1916,7 @@ GRPO 问了一个非常直接的问题：
 可以。
 
 
-### 9.2 GRPO 的核心：同一道题多做几遍
+**核心操作：同一道题多做几遍。**
 
 假设 Prompt：
 
@@ -1952,7 +1965,7 @@ R5 = 1
 > Group Relative。
 
 
-### 9.3 GRPO 的 Advantage
+### 6.2 GRPO 的 Advantage
 
 假设一组 Reward：
 
@@ -1992,7 +2005,7 @@ $$
 > Z-score 标准化。
 
 
-### 9.4 一个具体例子
+**一个具体例子。**
 
 假设：
 
@@ -2046,7 +2059,7 @@ $$
 知乎相关资料将这一点概括为：同一 Prompt 生成多份回答，通过组内 Reward 的均值和标准差构造相对 Advantage，从而不依赖单独的 Critic。
 
 
-### 9.5 为什么相对比较比绝对估值容易？
+### 6.3 为什么相对比较比绝对估值容易？
 
 回到学生考试。
 
@@ -2094,7 +2107,7 @@ GRPO：
 对于 LLM 尤其如此，因为同一个 Prompt 本来就很容易通过 Sampling 生成很多 Completion。
 
 
-### 9.6 GRPO 并不是把 PPO 全扔了
+### 6.4 GRPO 并不是把 PPO 全扔了
 
 这是一个非常容易误解的地方。
 
@@ -2156,7 +2169,7 @@ PPO Clip
 > **Advantage 的来源变了。**
 
 
-### 9.7 PPO 与 GRPO 的核心差别
+**PPO 与 GRPO 的核心差别。**
 
 PPO：
 
@@ -2199,7 +2212,7 @@ GRPO：
 ```
 
 
-### 9.8 GRPO Objective
+### 6.5 GRPO Objective
 
 一个简化的 GRPO Objective 可以写成：
 
@@ -2283,7 +2296,7 @@ $$
 因此 GRPO 仍然继承了 PPO 风格的 clipped policy objective 和 KL 约束，只是用组内相对奖励替换 Critic/GAE 产生的优势。
 
 
-### 9.9 GRPO 完整流程
+### 6.6 GRPO 完整流程
 
 现在可以把 GRPO 写成一个非常直观的算法流程。
 
@@ -2387,7 +2400,7 @@ $$
 ```
 
 
-### 9.10 GRPO 为什么特别适合数学和代码？
+### 6.7 GRPO 为什么特别适合数学和代码？
 
 因为这些任务有一个特别好的性质：
 
@@ -2428,7 +2441,7 @@ $$
 > Rule-based Reward / Verifiable Reward。
 
 
-### 9.11 一个非常重要的变化：从“人觉得好”到“环境验证对”
+**从“人觉得好”到“环境验证对”。**
 
 传统 RLHF 更多是：
 
@@ -2487,7 +2500,7 @@ Reward
 它也是近几年大模型推理强化学习非常重要的一条路线。
 
 
-### 9.12 为什么 GRPO 不需要 Critic？
+### 6.8 为什么 GRPO 不需要 Critic？以及它的局限
 
 现在终于可以用一句话回答：
 
@@ -2526,7 +2539,7 @@ Group Mean
 这正是 GRPO 能够降低 LLM RL 训练资源开销的重要原因之一。
 
 
-### 9.13 但 GRPO 也不是完美的
+**但 GRPO 也不是完美的。**
 
 GRPO 最大的问题之一就在：
 
@@ -2571,7 +2584,7 @@ $$
 > 如果整组完全没有差异，就没有什么可学习的相对信号。
 
 
-### 9.14 如果全部答对也一样
+**如果全部答对也一样。**
 
 例如：
 
@@ -2609,7 +2622,7 @@ Reward 有明显差异
 > Prompt 难度、Sampling Temperature、Group Size 等都会影响 GRPO。
 
 
-### 9.15 Group Size 有什么作用？
+**Group Size 有什么作用？**
 
 假设：
 
@@ -2656,9 +2669,9 @@ Critic Training
 本质上仍然存在计算权衡。
 
 
-## 十、PPO、DPO、GRPO 的关系与总结
+## 七、PPO、DPO、GRPO 的关系与总结
 
-### 10.1 PPO、DPO、GRPO 到底是什么关系？
+### 7.1 PPO、DPO、GRPO 到底是什么关系？
 
 现在把三者真正串起来。
 
@@ -2727,7 +2740,7 @@ Policy Update
 > 尤其适合可以自动验证 Reward 的 Reasoning Task。
 
 
-### 10.2 一个表格彻底区分 PPO / DPO / GRPO
+### 7.2 一个表格彻底区分 PPO / DPO / GRPO
 
 | | PPO | DPO | GRPO |
 |---|---|---|---|
@@ -2743,7 +2756,7 @@ Policy Update
 | 典型场景 | RLHF、通用 RL | Preference Alignment | Math / Code / Reasoning RL |
 
 
-### 10.3 一个班级考试的比喻
+### 7.3 一个班级考试的比喻
 
 如果还是容易混，可以用一个统一比喻。
 
@@ -2844,7 +2857,7 @@ $$
 > Group Relative Policy Optimization。
 
 
-### 10.4 从 PPO 到 GRPO，本质上改了什么？
+### 7.4 从 PPO 到 GRPO，本质上改了什么？
 
 很多时候我们会说：
 
@@ -2906,7 +2919,7 @@ Policy Update
 这样会好理解很多。
 
 
-### 10.5 从 DPO 到 GRPO，本质区别又是什么？
+**从 DPO 到 GRPO，本质区别又是什么？**
 
 这两个虽然都去掉了 Critic，但思想完全不同。
 
@@ -2950,7 +2963,7 @@ Learn
 这也是为什么强化学习重新在 LLM Reasoning 中受到大量关注。
 
 
-### 10.6 最后把整个发展路径串起来
+### 7.5 最后把整个发展路径串起来
 
 从上一篇 RL 基础开始：
 
@@ -3007,7 +3020,7 @@ Policy Gradient
 ```
 
 
-### 10.7 最值得记住的公式
+### 7.6 最值得记住的公式
 
 **Policy Ratio**
 
@@ -3120,7 +3133,7 @@ $$
 > 这个回答比同一 Prompt 下其他回答平均水平好多少。
 
 
-### 10.8 最后总结
+### 7.7 最后总结
 
 如果完全不记公式，只记下面这些也够用了。
 
@@ -3184,20 +3197,11 @@ $$
 
 ## 参考资料
 
-1. 《【大白话04】一文理清强化学习 PPO 和 GRPO 算法流程 | 原理图解》
-   - Bilibili
-   - BV15cZYYvEhz
-
-2. 《看完能和外婆解释的 PPO, DPO, GRPO 强化学习》
-   - 知乎专栏
-   - https://zhuanlan.zhihu.com/p/1984387073625593089
-
-3. Schulman et al., *Proximal Policy Optimization Algorithms*, 2017.
-
-4. Rafailov et al., *Direct Preference Optimization: Your Language Model is Secretly a Reward Model*, 2023.
-
-5. Shao et al., *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models*, 2024.
-
-6. DeepSeek-AI, *DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning*, 2025.
+- Bilibili：《【大白话04】一文理清强化学习 PPO 和 GRPO 算法流程 | 原理图解》：https://www.bilibili.com/video/BV15cZYYvEhz/
+- 知乎：《看完能和外婆解释的 PPO, DPO, GRPO 强化学习》：https://zhuanlan.zhihu.com/p/1984387073625593089
+- Schulman et al., _Proximal Policy Optimization Algorithms_, 2017：https://arxiv.org/abs/1707.06347
+- Rafailov et al., _Direct Preference Optimization: Your Language Model is Secretly a Reward Model_, 2023：https://arxiv.org/abs/2305.18290
+- Shao et al., _DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models_, 2024：https://arxiv.org/abs/2402.03300
+- DeepSeek-AI, _DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning_, 2025：https://arxiv.org/abs/2501.12948
 
 [1]: https://www.bilibili.com/video/BV15cZYYvEhz/ "〖大白话04〗一文理清强化学习PPO和GRPO算法流程 | 原理图解_哔哩哔哩_bilibili"

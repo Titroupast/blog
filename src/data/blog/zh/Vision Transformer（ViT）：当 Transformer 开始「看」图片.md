@@ -1,6 +1,6 @@
 ---
 author: 芙芙
-pubDatetime: 2026-08-31
+pubDatetime: 2026-09-01
 title: Vision Transformer（ViT）：当 Transformer 开始「看」图片
 featured: false
 draft: false

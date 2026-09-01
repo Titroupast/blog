@@ -1,6 +1,6 @@
 ---
 author: 芙芙
-pubDatetime: 2026-08-31
+pubDatetime: 2026-09-01
 title: 持续学习 Continual Learning：如何让模型学习新知识，却不忘记过去？
 featured: false
 draft: false

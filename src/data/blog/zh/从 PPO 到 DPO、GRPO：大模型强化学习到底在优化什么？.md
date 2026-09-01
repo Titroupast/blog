@@ -1,6 +1,6 @@
 ---
 author: 芙芙
-pubDatetime: 2026-08-31
+pubDatetime: 2026-09-01
 title: 从 PPO 到 DPO、GRPO：大模型强化学习到底在优化什么？
 featured: false
 draft: false

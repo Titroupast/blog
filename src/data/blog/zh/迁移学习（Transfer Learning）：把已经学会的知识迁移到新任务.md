@@ -1,6 +1,6 @@
 ---
 author: 芙芙
-pubDatetime: 2026-08-31
+pubDatetime: 2026-09-01
 title: 迁移学习（Transfer Learning）：把已经学会的知识迁移到新任务
 featured: false
 draft: false

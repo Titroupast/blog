@@ -172,21 +172,6 @@ $$
 
 尤其是在 Foundation Model 时代，一个重要的问题变成：**如何以最低成本，把一个巨大的预训练模型迁移到特定任务？** 因此出现了 Adapter、Prompt Tuning、LoRA、PEFT 这类 Parameter-Efficient Fine-tuning 方法。
 
-### 6.2 推荐后续学习路线
-
-如果继续学习迁移学习，可以按照这条路线：
-
-```text
-Transfer Learning
-→ Pretraining + Fine-tuning
-→ Domain Adaptation
-→ Domain Generalization
-→ Test-time Adaptation
-→ Test-time Training
-```
-
-从最宽泛的迁移学习出发，先掌握最主流的 Pretraining + Fine-tuning 范式，再逐步深入到解决「分布变了」的 Domain Adaptation、面对「没见过的新域」的 Domain Generalization，再到部署后实时适应的 Test-time Adaptation 与 Test-time Training。这样后面再接 OOD、TTA、TTT 就会比较自然。
-
 ## 七、总结
 
 如果只用一句话解释迁移学习：

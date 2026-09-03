@@ -43,7 +43,7 @@ $$
 
 但调和级数发散得非常慢：$H_{10}\approx2.929$、$H_{100}\approx5.187$、$H_{1000}\approx7.485$、$H_{1000000}\approx14.393$——即使加到一百万项，结果也只有大约 $14.4$。那么它到底是按照什么速度增长的呢？答案是 $\ln n$：事实上 $H_n$ 和 $\ln n$ 的增长速度几乎完全相同。这也正是欧拉–马歇罗尼常数出现的地方。
 
-![调和级数 Hₙ 与 ln n 的增长对比（两者几乎平行，相差常数 γ）](euler-gamma-figs/euler-harmonic-growth.png)
+![调和级数 Hₙ 与 ln n 的增长对比（两者几乎平行，相差常数 γ）](https://raw.githubusercontent.com/Titroupast/blog-img/master/euler-harmonic-growth.png)
 
 ## 二、为什么增长速度是 ln n
 
@@ -67,7 +67,7 @@ $$
 
 这就是调和级数和对数之间最直接的联系。调和和 $H_n$ 可以理解成：用一个个面积为 $\frac1k\times1$ 的矩形去近似曲线 $y=\frac1x$ 下方的面积，而真正的曲线面积就是 $\int_1^n\frac1x\,dx=\ln n$。因此 $H_n-\ln n$ 本质上可以看作：**用矩形近似 $1/x$ 曲线面积时，长期积累下来的误差**。
 
-![单位宽矩形近似曲线 y=1/x：矩形面积和 = Hₙ，间隙累积即误差来源](euler-gamma-figs/euler-rectangle-approx.png)
+![单位宽矩形近似曲线 y=1/x：矩形面积和 = Hₙ，间隙累积即误差来源](https://raw.githubusercontent.com/Titroupast/blog-img/master/euler-rectangle-approx.png)
 ## 三、γ 的定义与收敛证明
 
 ### 3.1 定义数列 a_n = H_n − ln n
@@ -122,7 +122,7 @@ $$
 \gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\ln n\right)\approx0.577215664901532\cdots
 $$
 
-![Hₙ − ln n 单调递减且有下界，收敛到 γ ≈ 0.5772](euler-gamma-figs/euler-gamma-convergence.png)
+![Hₙ − ln n 单调递减且有下界，收敛到 γ ≈ 0.5772](https://raw.githubusercontent.com/Titroupast/blog-img/master/euler-gamma-convergence.png)
 
 ## 四、∞−∞：一个未定式
 

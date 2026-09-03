@@ -16,7 +16,7 @@ description: 整理自 B 站「大白话04」视频并补充 DPO 内容：从 Po
 
 > 本文主要整理自 B 站视频《【大白话04】一文理清强化学习 PPO 和 GRPO 算法流程 | 原理图解》([哔哩哔哩][1])，并补充了 DPO 的内容和更多直观例子。
 >
-> 上一篇 [《强化学习基础：从 MDP、Bellman 方程到 Monte Carlo、TD 与 Q-Learning》](https://titourpast.github.io/blog/posts/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80%E4%BB%8E-mdpbellman-%E6%96%B9%E7%A8%8B%E5%88%B0-monte-carlotd-%E4%B8%8E-q-learning/) 从基本框架出发，讲到了 Monte Carlo、TD、SARSA、Q-Learning 与 Policy Gradient。这一篇继续沿着 Policy-based 方法往下走，重点理解三个在 LLM 后训练中非常常见的方法：
+> 上一篇 [《强化学习基础：从 MDP、Bellman 方程到 Monte Carlo、TD 与 Q-Learning》](https://titroupast.github.io/blog/posts/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80%E4%BB%8E-mdpbellman-%E6%96%B9%E7%A8%8B%E5%88%B0-monte-carlotd-%E4%B8%8E-q-learning/) 从基本框架出发，讲到了 Monte Carlo、TD、SARSA、Q-Learning 与 Policy Gradient。这一篇继续沿着 Policy-based 方法往下走，重点理解三个在 LLM 后训练中非常常见的方法：
 >
 > - PPO：Proximal Policy Optimization
 > - DPO：Direct Preference Optimization

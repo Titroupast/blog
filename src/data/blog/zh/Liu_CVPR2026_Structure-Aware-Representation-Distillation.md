@@ -335,5 +335,5 @@ $$
 
 ### 延伸阅读
 
-- [知识蒸馏](https://titourpast.github.io/blog/posts/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/)：SARD 所属的蒸馏主线——轻量学生从大模型中学习结构知识
-- [论文阅读：DSD（ICML 2026）](https://titourpast.github.io/blog/posts/hong_icml2026_manifold-expansion-dual-alignment/)：同样主张「结构/关系优于点值对齐」的蒸馏——结构感知思想的另一种实现
+- [知识蒸馏](https://titroupast.github.io/blog/posts/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/)：SARD 所属的蒸馏主线——轻量学生从大模型中学习结构知识
+- [论文阅读：DSD（ICML 2026）](https://titroupast.github.io/blog/posts/hong_icml2026_manifold-expansion-dual-alignment/)：同样主张「结构/关系优于点值对齐」的蒸馏——结构感知思想的另一种实现

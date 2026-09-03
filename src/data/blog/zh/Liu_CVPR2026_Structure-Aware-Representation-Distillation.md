@@ -108,7 +108,9 @@ description: SARD（CVPR 2026）论文阅读笔记：面向微型密集目标分
 
 **公式定义**（式 1-2）：
 
-$$F_T = E_T(x), \quad F_S = E_S(x), \quad M_S = D_S(F_S, p)$$
+$$
+F_T = E_T(x), \quad F_S = E_S(x), \quad M_S = D_S(F_S, p)
+$$
 
 **关键数据流**：
 
@@ -204,13 +206,17 @@ Lrepr = Σ W(i)·[特征一致 + 分布对齐]  +  λ·Lseg
 
 ### 模块②：统一表示损失 L_repr（特征一致性 + 分布对齐）
 
-$$L_{repr} = \lambda_f L_{FC} + \lambda_d L_{DA} \tag{10}$$
+$$
+L_{repr} = \lambda_f L_{FC} + \lambda_d L_{DA} \tag{10}
+$$
 
 #### 特征一致性 L_FC（式 11）——点对点匹配
 
 师生特征先经 1×1 卷积投影到共享空间（$\hat F^T = P_T(F_T), \hat F^S = P_S(F_S)$），再按结构权重做点对点 L2：
 
-$$L_{FC} = \sum_i W(i) \|\hat F^S(i) - \hat F^T(i)\|_2^2 \tag{11}$$
+$$
+L_{FC} = \sum_i W(i) \|\hat F^S(i) - \hat F^T(i)\|_2^2 \tag{11}
+$$
 
 > 大白话：结构重要处（边界/密集区）对齐误差被放大，逼学生优先学好这些位置。
 
@@ -258,7 +264,9 @@ SARD 的做法：
 
 #### 任务损失（式 14）
 
-$$L_{task} = Dice(M_S, M_{gt}) + BCE(M_S, M_{gt}) \tag{14}$$
+$$
+L_{task} = Dice(M_S, M_{gt}) + BCE(M_S, M_{gt}) \tag{14}
+$$
 
 ---
 

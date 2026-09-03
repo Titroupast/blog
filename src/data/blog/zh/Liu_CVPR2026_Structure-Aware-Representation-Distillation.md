@@ -325,3 +325,15 @@ $$
 ### 一句话总结
 
 > SARD 用**结构重要性图**（边界显著性 E + 几何复杂度 C + 空间密度 D）给特征蒸馏做空间加权，配合"点对点一致性 + 去噪分数匹配分布对齐"两种损失，让学生把容量集中在微型密集物体的几何关键位置——RockFrag 上比 CWD +4.3 mIoU/+6.7 bIoU，还兼容任意教师架构、推理零开销。
+
+---
+
+### 相关资料
+
+- 论文：Structure-Aware Representation Distillation for Tiny-Dense Object Segmentation（CVPR 2026）
+- 代码：[github.com/liuuuuuuxuesong/SARD](https://github.com/liuuuuuuxuesong/SARD)
+
+### 延伸阅读
+
+- [知识蒸馏](https://titourpast.github.io/blog/posts/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/)：SARD 所属的蒸馏主线——轻量学生从大模型中学习结构知识
+- [论文阅读：DSD（ICML 2026）](https://titourpast.github.io/blog/posts/hong_icml2026_manifold-expansion-dual-alignment/)：同样主张「结构/关系优于点值对齐」的蒸馏——结构感知思想的另一种实现

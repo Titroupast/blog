@@ -23,6 +23,7 @@ const blog = defineCollection({
       timezone: z.string().optional(),
       secret: z.boolean().optional().default(false),
       secretToken: z.string().optional(),
+      redirect: z.string().optional(),
     }),
 });
 

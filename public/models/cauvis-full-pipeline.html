@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cauvis｜以官方代码为准的执行图与论文审计</title>
+  <style>
+    :root{
+      --ink:#e8eef2;--muted:#91a0aa;--dim:#64727c;--paper:#081015;--panel:#0d171d;
+      --panel2:#101e25;--line:#22323b;--cyan:#5ce1e6;--cyan2:#19aeb6;
+      --amber:#f6b84a;--red:#ff6b63;--green:#68d391;--blue:#77a7ff;
+      --mono:"Cascadia Code","SFMono-Regular",Consolas,monospace;
+      --sans:Inter,"Segoe UI","Microsoft YaHei",sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;color:var(--ink);font-family:var(--sans);background:
+      linear-gradient(rgba(92,225,230,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(92,225,230,.035) 1px,transparent 1px),
+      radial-gradient(circle at 82% 0%,#12313a 0,transparent 32%),
+      radial-gradient(circle at 0% 45%,#15202e 0,transparent 28%),var(--paper);
+      background-size:28px 28px,28px 28px,auto,auto;line-height:1.65}
+    a{color:inherit}.wrap{width:min(1320px,calc(100% - 40px));margin:auto}
+    .topbar{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);
+      background:rgba(8,16,21,.88);backdrop-filter:blur(18px)}
+    .topbar .wrap{height:62px;display:flex;align-items:center;gap:22px}
+    .brand{font:700 15px/1 var(--mono);letter-spacing:.09em;color:var(--cyan);margin-right:auto}
+    nav{display:flex;gap:18px}nav a{font-size:12px;text-decoration:none;color:var(--muted)}
+    nav a:hover{color:var(--cyan)}
+    button{border:1px solid #63413d;color:#ffc0bb;background:#241614;border-radius:99px;padding:8px 13px;
+      font:700 11px var(--mono);cursor:pointer}
+    button:hover{border-color:var(--red)}
+    body.clean .audit{display:none!important}
+    .hero{padding:88px 0 58px;display:grid;grid-template-columns:1.25fr .75fr;gap:60px;align-items:end}
+    .eyebrow,.section-kicker{font:700 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--cyan)}
+    h1{font-size:clamp(46px,7vw,96px);letter-spacing:-.065em;line-height:.88;margin:20px 0 28px;max-width:900px}
+    h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1px var(--cyan)}
+    .lead{font-size:17px;color:#b9c5cb;max-width:760px}.lead b{color:white}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+    .chip{font:700 10px var(--mono);padding:6px 10px;border:1px solid var(--line);border-radius:99px;background:#0a1318}
+    .chip.code{color:var(--cyan)}.chip.train{color:var(--amber)}.chip.bad{color:var(--red)}
+    .hero-stats{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);background:rgba(13,23,29,.82)}
+    .stat{padding:22px;border:solid var(--line);border-width:0 1px 1px 0;min-height:126px}
+    .stat:nth-child(2n){border-right:0}.stat:nth-child(n+3){border-bottom:0}
+    .stat strong{display:block;font:700 38px/1 var(--mono);color:var(--cyan);margin-bottom:13px}
+    .stat:nth-child(2) strong{color:var(--amber)}.stat:nth-child(3) strong{color:var(--red)}
+    .stat span{font-size:12px;color:var(--muted)}
+    section{padding:68px 0;border-top:1px solid var(--line)}
+    .section-head{display:grid;grid-template-columns:.68fr 1.32fr;gap:40px;margin-bottom:36px}
+    h2{font-size:clamp(30px,4vw,54px);line-height:1.05;letter-spacing:-.045em;margin:10px 0 0}
+    .section-copy{color:var(--muted);max-width:700px;margin:4px 0 0}
+    .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;counter-reset:flow}
+    .flow-card,.card{position:relative;border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,31,38,.96),rgba(9,18,23,.96))}
+    .flow-card{min-height:235px;padding:22px 18px;counter-increment:flow}
+    .flow-card:after{content:"";position:absolute;right:-13px;top:50%;width:13px;border-top:1px solid var(--cyan)}
+    .flow-card:last-child:after{display:none}
+    .flow-card:before{content:"0" counter(flow);font:700 10px var(--mono);color:var(--dim)}
+    .icon{height:65px;display:flex;align-items:center;font:700 24px var(--mono);color:var(--cyan)}
+    .flow-card h3,.card h3{font-size:15px;margin:0 0 10px}.flow-card p,.card p{font-size:12px;color:var(--muted);margin:0}
+    .tag{display:inline-block;margin-top:16px;font:700 9px var(--mono);letter-spacing:.07em;padding:4px 7px;border:1px solid #29424a;color:#a7c1c7}
+    .flow-card.hot{border-color:#6a5529}.flow-card.hot .icon{color:var(--amber)}
+    .beginner-key{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-bottom:22px;
+      border:1px solid var(--line);background:var(--line)}
+    .key-cell{background:#0b151a;padding:15px 16px}
+    .key-cell b{display:block;font:700 12px var(--mono);color:var(--cyan);margin-bottom:4px}
+    .key-cell span{font-size:11px;color:var(--muted)}
+    .pipeline-detail{position:relative;display:grid;gap:12px}
+    .pipeline-detail:before{content:"";position:absolute;left:35px;top:36px;bottom:36px;border-left:1px dashed #31515a}
+    .stage{position:relative;display:grid;grid-template-columns:72px minmax(250px,.8fr) minmax(420px,1.2fr);
+      border:1px solid var(--line);background:linear-gradient(110deg,rgba(14,27,33,.98),rgba(8,17,22,.98));min-height:178px}
+    .stage-no{position:relative;z-index:1;display:grid;place-items:center;align-self:start;margin:22px 0 0 16px;
+      width:38px;height:38px;border-radius:50%;border:1px solid var(--cyan);background:#091319;
+      font:700 11px var(--mono);color:var(--cyan);box-shadow:0 0 0 7px #0b171c}
+    .stage-intro{padding:24px 24px 24px 8px;border-right:1px solid var(--line)}
+    .stage-type{font:700 9px var(--mono);letter-spacing:.13em;color:var(--dim);text-transform:uppercase}
+    .stage h3{font-size:19px;line-height:1.2;margin:9px 0 10px}
+    .stage-intro p{font-size:12px;color:#a8b5bc;margin:0}
+    .stage-detail{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:11px}
+    .detail-box{border:1px solid #20333c;background:#081217;padding:12px 14px}
+    .detail-box.wide{grid-column:1/-1}.detail-box.why{border-color:#3d3929;background:#14140f}
+    .detail-box b{display:block;font:700 9px var(--mono);letter-spacing:.09em;color:var(--cyan);margin-bottom:5px}
+    .detail-box.why b{color:var(--amber)}
+    .detail-box span{display:block;font-size:11px;color:#aab8bf}
+    .detail-box code{font:10px/1.6 var(--mono);color:#d0dde2}
+    .stage.cauvis-stage{border-color:#665129;background:linear-gradient(110deg,#19170f,#09151a)}
+    .stage.cauvis-stage .stage-no{border-color:var(--amber);color:var(--amber)}
+    .mini-flow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px}
+    .mini-flow i{font:normal 700 10px var(--mono);padding:5px 7px;border:1px solid #2b424b;color:#b8c9cf}
+    .mini-flow em{font-style:normal;color:var(--cyan)}
+    .fork{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .fork > div{border:1px solid #29404a;padding:10px}.fork strong{display:block;font-size:10px;color:var(--cyan);margin-bottom:4px}
+    .fork span{font-size:10px;color:var(--muted)}
+    .microscope{display:grid;grid-template-columns:1fr 1.55fr 1fr;gap:16px;align-items:stretch}
+    .card{padding:24px}.card-label{font:700 10px var(--mono);letter-spacing:.1em;color:var(--dim);margin-bottom:20px}
+    .tensor{font:700 13px var(--mono);color:var(--cyan);border-left:2px solid var(--cyan);padding-left:12px;margin:13px 0}
+    .prompt-core{border-color:#725b2c;background:linear-gradient(145deg,#1c1910,#0c1519)}
+    .prompt-core .card-label,.prompt-core .tensor{color:var(--amber)}.prompt-core .tensor{border-color:var(--amber)}
+    .formula{font:12px/1.75 var(--mono);background:#071015;border:1px solid #20333c;padding:14px;margin-top:16px;overflow:auto;color:#bed0d7}
+    .branches{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+    .branch{border:1px solid #3d3929;background:#14140f;padding:14px}.branch b{font-size:12px;color:var(--amber)}
+    .branch p{margin-top:7px;font:11px/1.65 var(--mono)}
+    .audit-note{border-left:3px solid var(--red);background:#211413;color:#ffc1bd;padding:12px 14px;margin-top:14px;font-size:11px}
+    .audit-note b{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+    .layer-strip{display:grid;grid-template-columns:repeat(24,1fr);gap:5px;margin-top:36px}
+    .layer{height:78px;border:1px solid var(--line);background:#0c171d;display:flex;flex-direction:column;align-items:center;justify-content:center;font:9px var(--mono);color:var(--dim)}
+    .layer:after{content:"C";display:grid;place-items:center;margin-top:7px;width:20px;height:20px;border-radius:50%;border:1px solid #6a5529;color:var(--amber)}
+    .layer.tap{border-color:var(--cyan);box-shadow:inset 0 -3px var(--cyan);color:var(--cyan)}
+    .strip-note{font-size:11px;color:var(--muted);margin-top:12px}.strip-note b{color:var(--amber)}
+    .freq{margin-top:26px;padding:24px;border:1px solid var(--line);background:#091319}
+    .freq-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:17px}
+    .freq-head h3{margin:0;font-size:16px}.freq-head code{font:11px var(--mono);color:var(--muted)}
+    .spectrum{height:54px;display:grid;grid-template-columns:40% 20% 40%;border:1px solid #33434c;position:relative}
+    .drop{background:repeating-linear-gradient(45deg,#101b21,#101b21 6px,#0c151a 6px,#0c151a 12px)}
+    .keep{background:linear-gradient(90deg,#72491f,var(--amber),#72491f);position:relative}
+    .keep:after{content:"保留 408 / 2048 bins";position:absolute;inset:0;display:grid;place-items:center;font:700 10px var(--mono);color:#1c1407}
+    .marks{display:flex;justify-content:space-between;font:10px var(--mono);color:var(--dim);margin-top:7px}
+    .marks span:nth-child(2){color:var(--amber)}
+    .audit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .finding{display:grid;grid-template-columns:54px 1fr;border:1px solid #4c2b29;background:linear-gradient(130deg,#1c1111,#0d171c);min-height:148px}
+    .severity{display:grid;place-items:center;border-right:1px solid #4c2b29;font:700 10px var(--mono);color:var(--red);writing-mode:vertical-rl}
+    .finding-body{padding:19px}.finding h3{font-size:14px;margin:0 0 7px}.finding p{font-size:12px;color:#b9a5a4;margin:0}
+    .finding code{font:11px var(--mono);color:#ffd0cc}
+    .finding.warn{border-color:#584923;background:linear-gradient(130deg,#1c180e,#0d171c)}
+    .finding.warn .severity{border-color:#584923;color:var(--amber)}
+    .finding.warn p{color:#bab09a}
+    .standard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .standard-grid .card{min-height:190px}.standard-grid .num{font:700 28px var(--mono);color:var(--cyan);margin-bottom:22px}
+    .evidence{width:100%;border-collapse:collapse;font-size:11px}
+    .evidence th{text-align:left;font:700 10px var(--mono);letter-spacing:.08em;color:var(--cyan);padding:13px;border-bottom:1px solid #45606b}
+    .evidence td{padding:14px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:#adbbc2}
+    .evidence td:first-child{font-weight:700;color:var(--ink);width:17%}.evidence td:nth-child(2){width:37%}
+    .evidence code{font:10px/1.6 var(--mono);color:#bdd0d6}
+    .status{font:700 10px var(--mono);color:var(--red)}.status.ok{color:var(--green)}.status.warn{color:var(--amber)}
+    .method{padding:24px;border:1px solid #29414a;background:#0b161c;color:#aebdc4;font-size:12px;margin-bottom:22px}
+    footer{padding:40px 0 60px;border-top:1px solid var(--line);color:var(--dim);font:10px/1.7 var(--mono)}
+    @media(max-width:980px){.hero,.section-head{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,1fr)}.flow-card:after{display:none}
+      .beginner-key{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:65px 1fr}.stage-intro{border-right:0}.stage-detail{grid-column:2;padding-top:0}
+      .microscope{grid-template-columns:1fr}.layer-strip{grid-template-columns:repeat(12,1fr)}.standard-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:650px){.wrap{width:min(100% - 24px,1320px)}nav{display:none}.hero{padding-top:55px}.flow,.audit-grid,.standard-grid{grid-template-columns:1fr}
+      .branches{grid-template-columns:1fr}.layer-strip{grid-template-columns:repeat(6,1fr)}.evidence{display:block;overflow-x:auto;white-space:nowrap}
+      .beginner-key{grid-template-columns:1fr 1fr}.stage{grid-template-columns:54px 1fr}.pipeline-detail:before{left:27px}.stage-no{margin-left:9px;width:36px;height:36px}
+      .stage-intro{padding-left:4px}.stage-detail{grid-template-columns:1fr;padding-left:4px}.detail-box.wide{grid-column:auto}.fork{grid-template-columns:1fr}}
+    @media print{.topbar{display:none}body{background:#fff;color:#111}.card,.flow-card,.finding,.freq,.method{break-inside:avoid;background:#fff;color:#111}.audit-note{background:#fff}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand">CAUVIS / CODE TRACE</div>
+      <nav><a href="#pipeline">总流程</a><a href="#cauvis">Cauvis 放大</a><a href="#audit">差异</a><a href="#evidence">证据</a></nav>
+      <button id="auditToggle" aria-pressed="true">● 审计标注：开</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Executable truth · official implementation</div>
+        <h1>从像素到检测框<br><em>逐算子追踪</em></h1>
+        <p class="lead">这张图把<strong>官方代码的实际执行路径</strong>放在主层，把论文中存在但代码未执行的机制作为红色审计层。所有“因果”“解耦”等词只代表论文命名，不把它们当成代码已经证明的性质。</p>
+        <div class="legend"><span class="chip code">青色＝张量/标准路径</span><span class="chip train">琥珀＝Cauvis 可训练路径</span><span class="chip bad">红色＝论文↔代码差异</span></div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>24×</strong><span>同一份 Cauvis 在 24 个 ViT block 后重复调用</span></div>
+        <div class="stat"><strong>4.9M</strong><span>日志记录的可训练 backbone 参数，约 1.6%</span></div>
+        <div class="stat"><strong>0</strong><span>代码中的 SVD / top-k / 奇异值软阈值操作</span></div>
+        <div class="stat"><strong>1600</strong><span>配置中的 prompt token 数；论文建议约 100</span></div>
+      </div>
+    </div>
+
+    <section id="pipeline">
+      <div class="section-head">
+        <div><div class="section-kicker">01 / End-to-end path</div><h2>真实执行总流程</h2></div>
+        <p class="section-copy">从一张道路图像开始，逐步跟踪它怎样变成候选框。每一步都列出输入、计算、输出和作用；先理解主干流程，再到下一节放大 Cauvis 内部。</p>
+      </div>
+
+      <div class="beginner-key">
+        <div class="key-cell"><b>B</b><span>batch size，一次送入网络的图像数量</span></div>
+        <div class="key-cell"><b>C / channel</b><span>每个位置保存多少维特征，可理解为描述信息的长度</span></div>
+        <div class="key-cell"><b>token</b><span>把图像小块转换成的向量；模型处理向量序列而非直接处理像素</span></div>
+        <div class="key-cell"><b>feature map</b><span>保留空间排布的特征张量，形状通常写作 B×C×H×W</span></div>
+      </div>
+
+      <div class="pipeline-detail">
+        <article class="stage">
+          <div class="stage-no">01</div>
+          <div class="stage-intro"><div class="stage-type">Dataset pipeline</div><h3>读取图像与标注</h3><p>数据集给出一张道路图像，以及训练时使用的类别和真实框。测试时没有真实框参与预测。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>输入</b><span>磁盘图像 + GT 类别/边界框</span></div>
+            <div class="detail-box"><b>处理</b><span>直接缩放到 640×640；训练时以 0.5 概率水平翻转，框同步变换</span></div>
+            <div class="detail-box why wide"><b>为什么需要</b><span>固定输入尺寸后，后续 token 数量恒定，batch 内也能组成规则张量。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>configs/cauvis/...sdgod.py:15–21</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">02</div>
+          <div class="stage-intro"><div class="stage-type">Data preprocessor</div><h3>通道转换与归一化</h3><p>把像素调整到预训练 DINOv2 熟悉的数值分布，生成真正送入 backbone 的张量。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>输入</b><span>B×3×640×640，读取器产生的 BGR 像素</span></div>
+            <div class="detail-box"><b>计算</b><span>BGR→RGB，再逐通道执行 (pixel−mean)/std</span></div>
+            <div class="detail-box"><b>输出</b><span>B×3×640×640 浮点张量</span></div>
+            <div class="detail-box why"><b>为什么需要</b><span>输入统计分布需与 ImageNet/DINOv2 预训练阶段保持一致。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>configs/_base_/models/dinov2_dinohead.py:13–18</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">03</div>
+          <div class="stage-intro"><div class="stage-type">Patch embedding</div><h3>把图像切成 1600 个 token</h3><p>ViT 不逐像素计算，而把每个 16×16 图像块编码为一条 1024 维向量。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>空间切分</b><span>640÷16=40，因此得到 40×40=1600 个 patch</span></div>
+            <div class="detail-box"><b>向量化</b><span>每个 patch → 1024 维 token，并加入位置编码</span></div>
+            <div class="detail-box"><b>额外 token</b><span>序列前加入 1 个 CLS，最终长度 1601</span></div>
+            <div class="detail-box why"><b>为什么需要</b><span>位置编码告诉模型每块来自图像哪里；CLS 用于汇总全局信息。</span></div>
+            <div class="detail-box wide"><b>形状变化</b><code>B×3×640×640 → B×1601×1024</code></div>
+          </div>
+        </article>
+
+        <article class="stage cauvis-stage">
+          <div class="stage-no">04</div>
+          <div class="stage-intro"><div class="stage-type">Frozen DINOv2 backbone + trainable Cauvis</div><h3>重复 24 次：Block → Cauvis</h3><p>这是方法真正改动 backbone 的位置。DINOv2 block 提取上下文特征，随后共享的 Cauvis 对 patch tokens 做一次小幅修正。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box wide"><b>单层执行顺序</b><div class="mini-flow"><i>当前 tokens</i><em>→</em><i>冻结 ViT block</i><em>→</em><i>共享 Cauvis</i><em>→</em><i>下一层</i></div></div>
+            <div class="detail-box"><b>DINOv2 block</b><span>自注意力让 1601 个 token 交换信息，FFN 再变换每个 token；参数冻结。</span></div>
+            <div class="detail-box"><b>Cauvis</b><span>暂存 CLS，仅修改 1600 个 patch token；同一份 prompt/分支参数调用 24 次。</span></div>
+            <div class="detail-box"><b>形状</b><span>输入与输出均为 B×1601×1024，不改变序列长度和通道数。</span></div>
+            <div class="detail-box why"><b>为什么这样插入</b><span>让少量可训练参数在不同语义深度反复影响特征，同时保留预训练 backbone。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>cauvis_backbone.py:35–42 · cauvis.py:123–134</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">05</div>
+          <div class="stage-intro"><div class="stage-type">Feature collection</div><h3>从第 7 / 11 / 15 / 23 层取特征</h3><p>检测器需要不同尺度的信息，所以在四个深度截取 token，并重新排成二维特征图。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>去掉 CLS</b><span>B×1601×1024 → B×1600×1024</span></div>
+            <div class="detail-box"><b>恢复空间</b><span>1600=40×40，重排为 B×1024×40×40</span></div>
+            <div class="detail-box"><b>四个深度</b><span>层 7、11、15、23 分别提供由浅到深的语义表示</span></div>
+            <div class="detail-box why"><b>注意</b><span>四个输出来自不同网络深度；刚取出时空间尺寸其实都相同。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>cauvis_backbone.py:43–50</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">06</div>
+          <div class="stage-intro"><div class="stage-type">Artificial feature pyramid</div><h3>把四张 40×40 特征图变成多尺度</h3><p>DINOv2 原生只有单一 patch 尺度，代码用插值构造检测器需要的四级金字塔。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>层 7</b><span>B×1024×160×160 · stride 4</span></div>
+            <div class="detail-box"><b>层 11</b><span>B×1024×80×80 · stride 8</span></div>
+            <div class="detail-box"><b>层 15</b><span>B×1024×40×40 · stride 16</span></div>
+            <div class="detail-box"><b>层 23</b><span>B×1024×20×20 · stride 32</span></div>
+            <div class="detail-box why wide"><b>为什么需要</b><span>高分辨率层更适合定位小目标，低分辨率层拥有更大感受野，适合大目标与整体语义。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>dino_v2.py:358–386</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">07</div>
+          <div class="stage-intro"><div class="stage-type">Neck / ChannelMapper</div><h3>统一为 256 个通道</h3><p>Transformer 检测器使用 256 维特征，因此 neck 把 backbone 的 1024 通道压缩到 256。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>计算</b><span>每个尺度分别经过 1×1 convolution + GroupNorm(32)</span></div>
+            <div class="detail-box"><b>空间尺寸</b><span>160²、80²、40²、20² 都保持不变</span></div>
+            <div class="detail-box"><b>输出</b><span>四张 B×256×H×W 特征图</span></div>
+            <div class="detail-box why"><b>为什么需要</b><span>降低计算量，并让四个尺度与后续 encoder/decoder 的 256 维接口一致。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>dinov2_dinohead.py:39–46</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">08</div>
+          <div class="stage-intro"><div class="stage-type">DINO encoder + query initialization</div><h3>编码四尺度特征并选出 900 个候选</h3><p>6 层 deformable encoder 跨尺度聚合信息；two-stage 机制再从 encoder 输出中选择高分候选，初始化 decoder queries。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>Encoder</b><span>6 层、256 维，在四个特征层级的少量采样点间聚合信息</span></div>
+            <div class="detail-box"><b>位置</b><span>加入二维正弦位置编码，使展平后的特征仍知道原空间坐标</span></div>
+            <div class="detail-box"><b>Two-stage</b><span>encoder 候选按分数取 top 900，形成初始 reference boxes/queries</span></div>
+            <div class="detail-box why"><b>为什么用 query</b><span>每个 query 可理解为一个“负责寻找某个目标”的检测槽位。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>dinov2_dinohead.py:8–12, 47–53, 64–69</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">09</div>
+          <div class="stage-intro"><div class="stage-type">DINO decoder</div><h3>900 个 query 反复查询图像特征</h3><p>6 层 decoder 让 queries 彼此交互，并从四尺度 encoder memory 中寻找与各自目标相关的信息。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box"><b>Self-attention</b><span>queries 之间交流，减少多个 query 重复描述同一目标</span></div>
+            <div class="detail-box"><b>Cross-attention</b><span>query 在四尺度图像特征中采样，补充目标外观和位置证据</span></div>
+            <div class="detail-box"><b>逐层精修</b><span>每层根据当前 reference box 继续修正框；6 层中间结果都用于训练监督</span></div>
+            <div class="detail-box why"><b>这里的 attention</b><span>属于标准 DINO 检测器，与前面 Cauvis 的 prompt cross-attention 是两套不同机制。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>dinov2_dinohead.py:54–63</code></div>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-no">10</div>
+          <div class="stage-intro"><div class="stage-type">DINOHead / output</div><h3>每个 query 输出类别与边界框</h3><p>检测头把 decoder 特征翻译为 7 类得分和归一化框坐标。训练与推理在这里采取不同的收尾方式。</p></div>
+          <div class="stage-detail">
+            <div class="detail-box wide"><b>每个 query 的输出</b><span>7 个 sigmoid 分类得分 + 4 个框参数；最多有 900 个候选 query</span></div>
+            <div class="detail-box wide"><b>训练 / 推理分叉</b>
+              <div class="fork">
+                <div><strong>TRAIN</strong><span>Hungarian matching 将 queries 与 GT 一对一匹配；计算 Focal + L1 + GIoU。另有标准 DINO denoising queries，仅训练使用。</span></div>
+                <div><strong>INFERENCE</strong><span>展平 sigmoid 分数后直接 top-k，最多输出 300 个类别—框组合，再映射回原图尺寸；没有 NMS。</span></div>
+              </div>
+            </div>
+            <div class="detail-box why wide"><b>最终得到</b><span>每个检测结果包含类别、置信度和图像坐标中的边界框。</span></div>
+            <div class="detail-box wide"><b>代码位置</b><code>dinov2_dinohead.py:70–89 · detr_head.py:605–620</code></div>
+          </div>
+        </article>
+      </div>
+      <div class="audit-note audit"><b>阅读提示：</b>Cauvis 只替换了第 04 步中的 backbone 行为；第 07–10 步是标准 DINO 检测器。官方推理不是“阈值 + NMS”，而是对 sigmoid 分类分数直接取 top-k（<code>max_per_img=300</code>）。</div>
+    </section>
+
+    <section id="cauvis">
+      <div class="section-head">
+        <div><div class="section-kicker">02 / Module microscope</div><h2>Cauvis 到底算了什么</h2></div>
+        <p class="section-copy">下面只按 <code>cauvis.py</code> 的算子画图。变量名 <em>main / causal / auxiliary</em> 沿用代码与论文，但这些名称本身不能证明特征具有因果含义。</p>
+      </div>
+      <div class="microscope">
+        <article class="card">
+          <div class="card-label">INPUT / AFTER EACH VIT BLOCK</div>
+          <h3>分离 CLS 与 patch tokens</h3>
+          <div class="tensor">X : B × 1600 × 1024</div>
+          <p>CLS token 不参加 Cauvis 内部计算，结束后再拼回。空间 H、W 参数传入模块，但当前前向没有用它们做二维频域变换。</p>
+          <div class="formula">cls = x[:, :1]<br>feats = x[:, 1:]</div>
+        </article>
+
+        <article class="card prompt-core">
+          <div class="card-label">SHARED TRAINABLE MODULE / CALLED 24 TIMES</div>
+          <h3>零初始化 Prompt → 直接点积注意力</h3>
+          <div class="tensor">P : 1600 × 1024 &nbsp; (initially zeros)</div>
+          <div class="formula">A = softmax((X · Pᵀ) / √1024)<br>V = Linear(P)<br>R = Linear(A · V)</div>
+          <div class="branches">
+            <div class="branch"><b>MAIN / “CAUSAL”</b><p>m = SiLU(Linear(R))<br>output = α · m</p></div>
+            <div class="branch"><b>AUX / FOURIER</b><p>u = SiLU(MLP(R))<br>f = FourierBranch(u) + u<br>output = β · f</p></div>
+          </div>
+          <div class="formula">X′ = δ · X + α · main(R) + β · aux(R)<br>return concat(cls, X′)</div>
+          <div class="audit-note audit"><b>论文缺失实现：</b>这里没有 <code>Wq</code>/<code>Wk</code>，也没有对 A 做 SVD、top-k 截断或软阈值。论文 §4.1 的“最大奇异值因果子空间”没有进入这条可执行路径。</div>
+        </article>
+
+        <article class="card">
+          <div class="card-label">LEARNABLE SCALES</div>
+          <h3>三标量融合</h3>
+          <div class="tensor">α=0.001 · β=0.001 · δ=1.0</div>
+          <p>三者都是 <code>nn.Parameter</code>，因此融合比例可学习。它们控制分支强度，但不是按样本动态生成的门控权重。</p>
+          <div class="audit-note audit"><b>表述边界：</b>论文“dynamically adjust”可宽泛理解为训练中可学习；若理解为输入相关的动态门控，则代码不支持。</div>
+        </article>
+      </div>
+
+      <div class="freq">
+        <div class="freq-head"><h3>Fourier 分支：1D token FFT 的真实掩码</h3><code>1600 → zero pad 2048 → FFT(dim=1) → mask → iFFT → crop</code></div>
+        <div class="spectrum"><div class="drop"></div><div class="keep"></div><div class="drop"></div></div>
+        <div class="marks"><span>index 0 · DC</span><span>index 1024 · Nyquist / |f|最高</span><span>index 2047 · 接近 DC 的负频</span></div>
+        <p class="strip-note">掩码保留索引 <b>820…1227</b>，即围绕 Nyquist 的最高约 20% 双边频带；它不是最低 20% 低频。由于 FFT 沿 token 序列做，所谓“高频”取决于 token 排列顺序，并非直接的二维图像空间频率。</p>
+        <div class="audit-note audit"><b>论文内部矛盾：</b>正文 §4.2 说 high-pass；Appendix D 又描述 low-pass / amplitude threshold 以衰减高频噪声。代码采用接近正文的“保留高频”，但实现为 1D token FFT，而非 Appendix D 的 C×H×W 特征 2D DFT。</div>
+      </div>
+
+      <div class="layer-strip" aria-label="24 transformer blocks and shared Cauvis calls">
+        <div class="layer">00</div><div class="layer">01</div><div class="layer">02</div><div class="layer">03</div>
+        <div class="layer">04</div><div class="layer">05</div><div class="layer">06</div><div class="layer tap">07</div>
+        <div class="layer">08</div><div class="layer">09</div><div class="layer">10</div><div class="layer tap">11</div>
+        <div class="layer">12</div><div class="layer">13</div><div class="layer">14</div><div class="layer tap">15</div>
+        <div class="layer">16</div><div class="layer">17</div><div class="layer">18</div><div class="layer">19</div>
+        <div class="layer">20</div><div class="layer">21</div><div class="layer">22</div><div class="layer tap">23</div>
+      </div>
+      <p class="strip-note">每个圆形 C 都是对<strong>同一个 <code>self.cauvis</code></strong> 的调用；青色底线表示送到 neck 的层 7 / 11 / 15 / 23。不是 24 份独立 prompt。</p>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><div class="section-kicker">03 / Detector behavior</div><h2>训练与推理</h2></div>
+        <p class="section-copy">Cauvis 没有独立损失函数，也没有推理时开关。它通过标准检测损失的梯度学习；训练专用的 denoising queries 属于标准 DINO，而不是 Cauvis 的训练/推理不对称。</p>
+      </div>
+      <div class="standard-grid">
+        <article class="card"><div class="num">①</div><h3>冻结范围</h3><p>backbone 内名称包含 <code>cauvis</code> 的参数可训练，其余 DINOv2 backbone 参数冻结。detector 的 neck/head 在 backbone 外，照常训练。</p></article>
+        <article class="card"><div class="num">②</div><h3>分类损失</h3><p>Focal Loss，sigmoid，γ=2，α=0.25。论文中笼统写“cross-entropy”并不精确。</p></article>
+        <article class="card"><div class="num">③</div><h3>框损失</h3><p>L1 Loss（权重 5）+ GIoU Loss（权重 2），没有额外蒸馏、解耦、频谱或对抗损失。</p></article>
+        <article class="card"><div class="num">④</div><h3>推理路径</h3><p>Cauvis 仍在 24 层后执行。分类结果做 sigmoid + top-k，最多 300 个框；代码路径没有 NMS。</p></article>
+      </div>
+    </section>
+
+    <section id="audit" class="audit">
+      <div class="section-head">
+        <div><div class="section-kicker">04 / Paper ↔ code audit</div><h2>差异地图</h2></div>
+        <p class="section-copy">红色是会改变方法定义或理论支撑的结构差异；琥珀色是实现选择、配置或表述边界。严重度按对论文核心机制可复验性的影响排序。</p>
+      </div>
+      <div class="audit-grid">
+        <article class="finding"><div class="severity">CRITICAL</div><div class="finding-body"><h3>SVD 因果子空间完全缺席</h3><p>论文把 top-k 大奇异值方向、对小奇异值软阈值作为后门调整解释核心；<code>cross_attention</code> 只有点积、缩放、softmax、加权求和与线性层。</p></div></article>
+        <article class="finding"><div class="severity">CRITICAL</div><div class="finding-body"><h3>Fourier 输入与维度都改变</h3><p>论文 Appendix D：backbone 中间特征 Z∈R<sup>C×H×W</sup> 做 2D DFT；代码：对 cross-attention 输出 R 沿 token 维做 1D FFT。</p></div></article>
+        <article class="finding"><div class="severity">HIGH</div><div class="finding-body"><h3>论文的 Q/K 投影不存在</h3><p>论文 Q=XWq、K=PWk、V=PWv；代码 Q/K 直接使用 X/P，只对 prompt 值做 <code>mlp_prompt</code> 投影。</p></div></article>
+        <article class="finding"><div class="severity">HIGH</div><div class="finding-body"><h3>Eq.9 sigmoid 变为 SiLU</h3><p>论文要求 y=σ(MLP(p̃)) 且输出位于 [0,1]；代码是 <code>Linear + SiLU</code>，输出无 [0,1] 约束。</p></div></article>
+        <article class="finding"><div class="severity">HIGH</div><div class="finding-body"><h3>频率叙述相互冲突</h3><p>正文 high-pass，附录 low-pass/幅度阈值；代码使用固定索引窗，保留 Nyquist 周围约 20% 的最高频带。</p></div></article>
+        <article class="finding"><div class="severity">HIGH</div><div class="finding-body"><h3>Prompt 长度建议与运行配置分离</h3><p>论文消融称约 100 近最优并建议默认 100；官方配置是 <code>token_length=1600</code>。这不能解释 SVD 缺失，因为代码无论长度多少都没有 SVD 分支。</p></div></article>
+        <article class="finding warn"><div class="severity">MEDIUM</div><div class="finding-body"><h3>Fourier 分支多一个内部残差</h3><p><code>AuxiliaryBranch</code> 返回 <code>out + x</code>，论文 Eq.10–11 的文字/公式没有清楚呈现这一实现残差。</p></div></article>
+        <article class="finding warn"><div class="severity">MEDIUM</div><div class="finding-body"><h3>“只用交叉熵”与配置不符</h3><p>实际检测头使用 Focal + L1 + GIoU。这仍是标准检测损失，但不是只有交叉熵。</p></div></article>
+        <article class="finding warn"><div class="severity">MEDIUM</div><div class="finding-body"><h3>“约 1%”实际日志约 1.6%</h3><p>冻结逻辑方向正确；日志记录 backbone 可训练 4,919,363 / 304,255,082 参数，约 1.6%。且 neck/head 仍需训练。</p></div></article>
+        <article class="finding warn"><div class="severity">MEDIUM</div><div class="finding-body"><h3>命名不能建立因果对应</h3><p>代码没有监督 prompt 对应 confounder 状态，也没有显式独立性/干预约束。“causal branch”是模块名，不是可执行保证。</p></div></article>
+        <article class="finding warn"><div class="severity">LOW</div><div class="finding-body"><h3>部分配置参数不控制前向</h3><p><code>link_token_to_query=False</code> 被传入并保存，但在 Cauvis 前向中未读取；<code>use_softmax</code> 也未决定是否 softmax，代码始终执行 softmax。</p></div></article>
+        <article class="finding warn"><div class="severity">LOW</div><div class="finding-body"><h3>零初始化带来早期对称性</h3><p>所有 prompt token 初始完全相同。初始注意力对 1600 prompts 均匀；训练能否快速打破对称取决于梯度路径，这是数学风险，不是仅凭源码能判定的性能结论。</p></div></article>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <div class="section-head">
+        <div><div class="section-kicker">05 / Evidence ledger</div><h2>证据索引</h2></div>
+        <p class="section-copy">行号针对工作区当前文件。表中把“论文声称什么”和“代码真正执行什么”并列，便于回到原文复核。</p>
+      </div>
+      <div class="method">判定规则：只有实际参与当前配置前向或损失计算的代码才算“实现”。注释、未读取的构造参数、模块命名与理论解释不能替代算子。论文内部互相冲突时单独标记，不替作者选择其中一版。</div>
+      <table class="evidence">
+        <thead><tr><th>核对项</th><th>论文证据</th><th>代码证据</th><th>判定</th></tr></thead>
+        <tbody>
+          <tr><td>SVD / 软阈值</td><td>全文文本 268–313、402–406、1186–1205：SVD、top-k causal subspace、抑制小奇异值。</td><td><code>cauvis.py:108–116</code>：einsum → scale → softmax → value aggregation → to_out；无 SVD/截断/阈值。</td><td><span class="status">不一致</span></td></tr>
+          <tr><td>Fourier 输入</td><td>Appendix D，1053：输入为 backbone 中间特征 Z=f(x)。</td><td><code>cauvis.py:129–131</code>：<code>aux_branch(res_prompt)</code>，输入来自 cross-attention。</td><td><span class="status">不一致</span></td></tr>
+          <tr><td>DFT 维度</td><td>Appendix D，1053：C×H×W 特征的 2D DFT。</td><td><code>cauvis.py:38</code>：<code>torch.fft.fft(..., dim=1)</code>，沿 token 维做 1D FFT。</td><td><span class="status">不一致</span></td></tr>
+          <tr><td>频段</td><td>正文 510：high-pass；Appendix D 1073：low-pass / amplitude threshold 抑制高频。</td><td><code>cauvis.py:40–46</code>：中心 index 1024 开窗；未 shift 的 FFT 中该处是 Nyquist。</td><td><span class="status">论文自相矛盾；代码高通</span></td></tr>
+          <tr><td>激活</td><td>Eq.9，434：σ 为 sigmoid，y∈[0,1]<sup>d</sup>。</td><td><code>cauvis.py:56–66</code>：Linear + SiLU。</td><td><span class="status">不一致</span></td></tr>
+          <tr><td>Q / K / V</td><td>Appendix E，1156–1161：Q=XWq、K=PWk、V=PWv。</td><td><code>cauvis.py:112–115</code>：X 与 P 直接点积；V=<code>mlp_prompt(P)</code>。</td><td><span class="status">部分实现</span></td></tr>
+          <tr><td>Prompt 初始化</td><td>§3.2，237：prompts initialized to zero；同句“random perturbations”描述其作用语境，不等于随机参数初始化。</td><td><code>cauvis.py:97</code>：<code>nn.Parameter(torch.zeros(...))</code>。</td><td><span class="status ok">一致</span></td></tr>
+          <tr><td>Prompt 长度</td><td>605–610：约 100 near-optimal，并推荐 100 为默认。</td><td><code>...sdgod.py:35</code>：<code>token_length=1600</code>。</td><td><span class="status">不一致</span></td></tr>
+          <tr><td>逐层插入/共享</td><td>论文图示与实现描述：模块集成进 backbone 层。</td><td><code>cauvis_backbone.py:24,35–42</code>：单一 <code>self.cauvis</code> 在每个 block 后调用。</td><td><span class="status ok">逐层一致；参数共享</span></td></tr>
+          <tr><td>融合比例</td><td>245：learnable parameters dynamically adjust fusion ratio。</td><td><code>cauvis.py:101–103,132</code>：α、β、δ 为可学习标量。</td><td><span class="status warn">基本一致；非样本自适应</span></td></tr>
+          <tr><td>冻结</td><td>891：all backbone parameters remain frozen；正文称通常约 1%。</td><td><code>cauvis_backbone.py:56–57</code>：只解冻名称含 cauvis 的 backbone 模块。</td><td><span class="status ok">策略一致</span></td></tr>
+          <tr><td>损失</td><td>1102：classifier and cross-entropy，学习信号来自标准检测目标。</td><td><code>dinov2_dinohead.py:73–76</code>：Focal、L1、GIoU；未发现 Cauvis 额外 loss。</td><td><span class="status warn">“无额外 loss”一致；具体损失不精确</span></td></tr>
+          <tr><td>训练/推理</td><td>方法未声明推理时移除 Cauvis。</td><td><code>cauvis_backbone.py:35–42</code>：前向无 train/test 条件分支。</td><td><span class="status ok">一致</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer><div class="wrap">CAUVIS OFFICIAL-CODE TRACE · generated from local source inspection<br>Primary files: mmdet/models/layers/cauvis.py · backbones/cauvis_backbone.py · reins_utils.py · configs/cauvis/* · configs/_base_/models/dinov2_dinohead.py</div></footer>
+  <script>
+    const toggle=document.getElementById('auditToggle');
+    toggle.addEventListener('click',()=>{
+      const clean=document.body.classList.toggle('clean');
+      toggle.textContent=clean?'○ 审计标注：关':'● 审计标注：开';
+      toggle.setAttribute('aria-pressed',String(!clean));
+    });
+  </script>
+</body>
+</html>

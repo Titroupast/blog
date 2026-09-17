@@ -1,5 +1,6 @@
 ---
 import { render, type CollectionEntry } from "astro:content";
+import { createHash } from "node:crypto";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -44,8 +45,16 @@ const {
 
 const { Content, headings } = await render(post);
 
-// 侧栏目录：只展示 h2 / h3 两级
-const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+const secretHash =
+  post.data.secret && post.data.secretToken
+    ? createHash("sha256").update(post.data.secretToken).digest("hex")
+    : undefined;
+
+// 侧栏目录：只展示 h2 / h3 两级，且跳过保密章节标题
+const SECRET_HEADING_RE = /(?:🔒|🤫|secret|保密|秘密|内部|私有)/i;
+const tocHeadings = headings.filter(
+  h => h.depth >= 2 && h.depth <= 3 && !SECRET_HEADING_RE.test(h.text)
+);
 
 let ogImageUrl: string | undefined;
 
@@ -118,7 +127,18 @@ const nextPost =
       <EditPost class="max-sm:hidden" {hideEditPost} {post} />
     </div>
     <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_15rem]">
-      <article id="article" class="prose max-w-none min-w-0">
+      <article
+        id="article"
+        class="prose max-w-none min-w-0"
+        data-secret-hash={secretHash ?? undefined}
+      >
+        {
+          post.data.secret && (
+            <div class="secret-notice">
+              🔒 这是公开预览版，完整内容（含 idea 与启发）需通过分享链接查看。
+            </div>
+          )
+        }
         <Content />
       </article>
 
@@ -362,4 +382,27 @@ const nextPost =
   document.addEventListener("astro:after-swap", () =>
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
   );
+
+  /** Reveal secret sections when the correct ?key= is provided */
+  const article = document.getElementById("article");
+  const secretHash = article?.dataset?.secretHash;
+  if (
+    secretHash &&
+    !document.documentElement.classList.contains("secret-revealed")
+  ) {
+    const key = new URLSearchParams(window.location.search).get("key");
+    if (key) {
+      crypto.subtle
+        .digest("SHA-256", new TextEncoder().encode(key))
+        .then(buf => {
+          const hex = Array.from(new Uint8Array(buf), b =>
+            b.toString(16).padStart(2, "0")
+          ).join("");
+          if (hex === secretHash) {
+            document.documentElement.classList.add("secret-revealed");
+          }
+        })
+        .catch(() => {});
+    }
+  }
 </script>

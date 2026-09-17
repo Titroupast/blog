@@ -67,3 +67,20 @@ html[data-theme="dark"] {
 :target {
   scroll-margin-block: 1rem;
 }
+
+/* Secret / private post sections */
+.secret-only {
+  display: none;
+}
+
+html.secret-revealed .secret-only {
+  display: block;
+}
+
+.secret-notice {
+  @apply my-4 rounded-lg border border-dashed border-accent/50 bg-muted/40 px-4 py-3 text-sm text-foreground/80;
+}
+
+html.secret-revealed .secret-notice {
+  display: none;
+}

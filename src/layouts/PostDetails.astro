@@ -129,13 +129,7 @@ const nextPost =
         class="prose max-w-none min-w-0"
         data-secret-hash={secretHash ?? undefined}
       >
-        {
-          post.data.secret && (
-            <div class="secret-notice">
-              🔒 这是公开预览版，完整内容（含 idea 与启发）需通过分享链接查看。
-            </div>
-          )
-        }
+        {post.data.secret && <div class="secret-notice">🔒</div>}
         <Content />
       </article>
 

@@ -50,11 +50,8 @@ const secretHash =
     ? createHash("sha256").update(post.data.secretToken).digest("hex")
     : undefined;
 
-// 侧栏目录：只展示 h2 / h3 两级，且跳过保密章节标题
-const SECRET_HEADING_RE = /(?:🔒|🤫|secret|保密|秘密|内部|私有)/i;
-const tocHeadings = headings.filter(
-  h => h.depth >= 2 && h.depth <= 3 && !SECRET_HEADING_RE.test(h.text)
-);
+// 侧栏目录：只展示 h2 / h3 两级（保密章节由前端脚本按展示状态过滤）
+const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
 
 let ogImageUrl: string | undefined;
 
@@ -349,7 +346,20 @@ const nextPost =
   function initPostToc() {
     const toc = document.querySelector(".post-toc");
     if (!toc) return;
-    const links = Array.from(toc.querySelectorAll("a[href^='#']"));
+    const revealed =
+      document.documentElement.classList.contains("secret-revealed");
+    const links = Array.from(toc.querySelectorAll("a[href^='#']")).filter(
+      link => {
+        const id = link.getAttribute("href")?.slice(1) ?? "";
+        const target = document.getElementById(id);
+        if (!target) return false;
+        const insideSecret = target.closest(".secret-only") !== null;
+        link
+          .closest("li")
+          ?.classList.toggle("toc-secret-hidden", insideSecret && !revealed);
+        return !insideSecret || revealed;
+      }
+    );
     const targets = links
       .map(link =>
         document.getElementById(link.getAttribute("href")?.slice(1) ?? "")
@@ -400,6 +410,7 @@ const nextPost =
           ).join("");
           if (hex === secretHash) {
             document.documentElement.classList.add("secret-revealed");
+            initPostToc();
           }
         })
         .catch(() => {});

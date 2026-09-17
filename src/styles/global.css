@@ -84,3 +84,7 @@ html.secret-revealed .secret-only {
 html.secret-revealed .secret-notice {
   display: none;
 }
+
+.toc-secret-hidden {
+  display: none;
+}

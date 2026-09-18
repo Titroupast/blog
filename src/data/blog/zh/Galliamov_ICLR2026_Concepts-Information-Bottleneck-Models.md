@@ -144,6 +144,9 @@ CBM 管道：X → Z → C → Y。
 ## 8. 相关资料
 
 - **论文（arXiv）**：Galliamov et al., _Concepts' Information Bottleneck Models_, ICLR 2026：https://arxiv.org/abs/2602.14626
-- **论文 PDF**：`Concepts information bottleneck models.pdf`（本目录）
 - 关键参考文献：IB（Tishby 2000 / Alemi 2017）、CBM（Koh 2020）、泄漏（Havasi 2022; Margeloiu 2021; Mahinpei 2021）、泄漏指标 OIS/NIS（Espinosa Zarlenga 2023a）、IB 泛化分析（Kawaguchi 2023）、ProbCBM（Kim 2023）、IntCEM（Espinosa Zarlenga 2023b）、AR-CBM（Havasi 2022）
-- 关联概念：互信息与 KL、交叉熵（本目录 blogs/）
+- 相关博客：
+  - 《从熵到大模型》：https://titroupast.github.io/blog/posts/从熵到大模型/
+  - 《KL 散度》：https://titroupast.github.io/blog/posts/kl散度/
+  - 《交叉熵与大模型》：https://titroupast.github.io/blog/posts/交叉熵与大模型/
+  - 《信息压缩与信息瓶颈》：https://titroupast.github.io/blog/posts/信息压缩与信息瓶颈/
